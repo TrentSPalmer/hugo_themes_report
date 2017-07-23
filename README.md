@@ -40,3 +40,7 @@ Makes sure you make the script executable.
 ```bash
 chmod 755 ~/bin/rank_hugo_themes.bash
 ```
+
+The raw output, represents what the report looks like in your terminal.
+
+https://raw.githubusercontent.com/TrentSPalmer/hugo_themes_report/master/example_output
