@@ -32,7 +32,7 @@ do
     last_commit_date=$(curl -s \
         "${REPOS_API_URL}/${hugo_theme_user}/${hugo_theme}/commits/${commit_hash}" \
         | grep date | head -1 | awk '{print $2}' | sed -e 's/"//g')
-    printf "%-8s %-20s %-20s %20s\n" "$stars" "$hugo_theme" \
+    printf "%-8s %-30s %-30s %30s\n" "$stars" "$hugo_theme" \
         "$hugo_theme_user" "$last_commit_date" >> ~/bin/rank_hugo_themes.log
 done
 
