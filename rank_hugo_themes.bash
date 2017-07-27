@@ -17,22 +17,42 @@ done
 
 HUGO_THEME_REPOS_LIST_LENGTH="${#HUGO_THEME_REPOS[@]}"
 
+# Test Make Sure We Have A HUGO_THEME_REPOS list
+[[ "${HUGO_THEME_REPOS_LIST_LENGTH}" -gt 20 ]] || { echo "error: HUGO_THEME_REPOS_LIST not parsed" ; exit ;}
+
 # just a few at a time because of github api limit
 
 for num in {1..4}
 do
     # pick a random hugo theme repo
+    url=""
     url=${HUGO_THEME_REPOS[$((RANDOM%$HUGO_THEME_REPOS_LIST_LENGTH))]}
+    [[ -n "${url}" ]] || continue
+
+    hugo_theme_user=""
     hugo_theme_user=$(echo $url | awk -F"/" '{print $5}')
+    [[ "${#hugo_theme_user}" -gt 2 ]] || continue
+
+    hugo_theme=""
     hugo_theme=$(echo $url | awk -F"/" '{print $6}')
+    [[ "${#hugo_theme_user}" -gt 2 ]] || continue
+
+    commit_hash=""
     commit_hash=$(echo $url | awk -F"/" '{print $8}' | sed -e 's/"//g')
+    [[ "${#commit_hash}" -gt 2 ]] || continue
+    
+    stars=""
     stars=$(curl -s "${REPOS_API_URL}/${hugo_theme_user}/${hugo_theme}" \
         | grep stargazers_count | awk '{print $2}' | sed -e 's/,$//g' \
         | awk '{print $NF}')
+    [[ -n "${stars}" ]] || continue
+
+    last_commit_date=""
     last_commit_date=$(curl -s \
         "${REPOS_API_URL}/${hugo_theme_user}/${hugo_theme}/commits/${commit_hash}" \
         | grep date | head -1 | awk '{print $2}' | sed -e 's/"//g')
-    printf "%-8s %-30s %-30s %30s\n" "$stars" "$hugo_theme" \
+    [[ -n "${last_commit_date}" ]] || continue
+    printf "%-30s %-30s %-30s %30s\n" "$stars" "$hugo_theme" \
         "$hugo_theme_user" "$last_commit_date" >> ~/bin/rank_hugo_themes.log
 done
 
