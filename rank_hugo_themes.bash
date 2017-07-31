@@ -43,8 +43,8 @@ do
     
     stars=""
     stars=$(curl -s "${REPOS_API_URL}/${hugo_theme_user}/${hugo_theme}" \
-        | grep stargazers_count | awk '{print $2}' | sed -e 's/,$//g' \
-        | awk '{print $NF}')
+        | grep stargazers_count | head -1 | awk '{print $2}' \
+        | sed -e 's/,$//g')
     [[ -n "${stars}" ]] || continue
 
     last_commit_date=""
