@@ -49,4 +49,4 @@ chmod 755 ~/bin/rank_hugo_themes.bash
 
 The raw output, represents what the report looks like in your terminal.
 
-https://raw.githubusercontent.com/TrentSPalmer/hugo_themes_report/master/example_output
+https://raw.githubusercontent.com/TrentSPalmer/hugo_themes_report/d83715fc3f6932b1e119a6ebfdb6a0000ac17049/example_output
