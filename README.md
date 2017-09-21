@@ -1,4 +1,10 @@
 # hugo_themes_report
+By running this script you get a report with:
+* Stars for each Theme
+* Name of the Theme
+* Name of the Repo owner
+* Date of the latest commit  
+
 A Bash Script to Generate a Report and Rank Hugo Themes
 
 The website for the themes for the Hugo Static Site

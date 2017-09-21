@@ -57,4 +57,4 @@ do
 done
 
 # modify to taste
-sort -rn ~/bin/rank_hugo_themes.log > ~/bin/rank_hugo_themes.report
+sort -rn ~/bin/rank_hugo_themes.log | uniq > ~/bin/rank_hugo_themes.report
