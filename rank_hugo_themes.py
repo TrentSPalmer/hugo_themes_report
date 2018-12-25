@@ -545,7 +545,7 @@ def make_table(themes_info):
     table = "\t<div class='container'>\n\t\t<table class='table monospace'>\n\t\t\t<thead><tr><th scope='col'>" + themes_info[1] + " (tag) " + themes_info[2] + "</th><th scope='col'>Date</th></tr></thead>\n\t\t\t<tbody>\n"
     for theme in themes_info[0]:
         name = theme[0].split('/')[1]
-        row = "\t\t\t\t<tr><td scope='row'>"+"<a href="+theme[4]+">"+name+"</a>""</td>"
+        row = "\t\t\t\t<tr><td scope='row'>"+"<a target='_blank' href='"+theme[4]+"'>"+name+"</a>""</td>"
         row += "<td nowrap>"+theme[2][:10]+"</td>"
         row += "<td align='right' nowrap style='padding-left:1em;'>"+str(theme[3])+'&#x2605'+"</td>"
         row += "<td align='right' style='padding-left:1em;'>"+theme[1][:6]+"</td></tr>\n"
