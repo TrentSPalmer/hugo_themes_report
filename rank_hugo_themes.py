@@ -6,89 +6,140 @@ import toml
 from calendar import timegm
 from time import strptime
 from requests import get
-from sqlite3 import connect
 from json import loads as json_loads
 from sys import argv as sys_argv
 from base64 import b64decode
 from ast import literal_eval
 
-DATABASENAME='hugothemes.db'
-# CREATE TABLE hugothemes (name varchar unique, ETag text, url text, jsondump text, commit_sha text, commit_date text, commit_date_in_seconds int, repo_ETag text, stargazers_count int, themes_toml_ETag text, themes_toml_content text, tags_list text, num_tags int, dot_gitmodules_content text);
-# CREATE TABLE tags (tag varchar unique, theme_list text, num_themes int);
-# CREATE TABLE hugothemes_from_gitlab (name varchar unique, url text, commit_sha text, id text, commit_date_in_seconds int, commit_date text, star_count int, themes_toml_content text);
-THEMESLISTREPO='gohugoio/hugoThemes'
+from sqlalchemy import create_engine,Column,Integer,VARCHAR,TEXT
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import deferred,sessionmaker
+
+engine = create_engine('sqlite:///hugothemes.db',echo=False)
+Base = declarative_base()
+
+
+class Tags(Base):
+    __tablename__ = 'tags'
+
+    tag = Column(VARCHAR,primary_key=True)
+    theme_list = Column(TEXT)
+    num_themes = Column(Integer)
+
+    def __repr__(self):
+        repr_string = "<(tag = '%s', theme_list = '%s', num_themes = '%s')>"
+        repr_values = (self.tag,self.theme_list,self.num_themes)
+        return repr_string % repr_values
+
+
+class Hugothemes_from_gitlab(Base):
+    __tablename__ = 'hugothemes_from_gitlab'
+
+    name = Column(VARCHAR,primary_key=True)
+    url = Column(TEXT)
+    commit_sha = Column(TEXT)
+    gitlab_id = Column(TEXT)
+    commit_date_in_seconds = Column(Integer)
+    commit_date = Column(TEXT)
+    star_count = Column(Integer)
+    themes_toml_content = Column(TEXT)
+
+    def __repr__(self):
+        repr_string = "<(name = '%s', url = '%s', commit_sha = '%s', gitlab_id = '%s', commit_date_in_seconds = '%s'"
+        repr_string += ", commit_date = '%s', star_count = '%s', themes_toml_content = '%s')>"
+        repr_values = (self.name,self.commit_sha,self.gitlab_id,self.commit_date_in_seconds,self.commit_date,
+                self.star_count,self.themes_toml_content)
+        return repr_string % repr_values
+
+
+class Hugothemes(Base):
+    __tablename__ = 'hugothemes'
+
+    name = Column(VARCHAR,primary_key=True)
+    ETag = Column(TEXT)
+    url = Column(TEXT)
+    jsondump = deferred(Column(TEXT))
+    commit_sha = Column(TEXT)
+    commit_date = Column(TEXT)
+    commit_date_in_seconds = Column(Integer)
+    repo_ETag = Column(TEXT)
+    stargazers_count = Column(Integer)
+    themes_toml_ETag = Column(TEXT)
+    themes_toml_content = deferred(Column(TEXT))
+    tags_list = Column(TEXT)
+    num_tags = Column(Integer)
+    dot_gitmodules_content = Column(TEXT)
+
+    def __repr__(self):
+        repr_string = "<(name = '%s', ETag = '%s', url = '%s', jsondump = '%s', commit_sha = '%s', commit_date = '%s'"
+        repr_string += ", commit_date_in_seconds = '%s', repo_ETag = '%s', stargazers_count = '%s', themes_toml_ETag = '%s'"
+        repr_string += ", themes_toml_content = '%s', tags_list = '%s', num_tags = '%s', dot_gitmodule_content = '%s')>"
+        repr_values = (self.name,self.ETag,self.url,self.jsondump,self.commit_sha,self.commit_date,self.commit_date_in_seconds,
+                self.repo_ETag,self.stargazers_count,self.themes_toml_ETag,self.themes_toml_content,self.tags_list,
+                self.num_tags,self.dot_gitmodules_content)
+        return repr_string % repr_values
+
+
+THEMESLISTREPO = 'gohugoio/hugoThemes'
+
 
 if len(sys_argv) == 2:
-    headers = { 'Authorization' : 'token '+sys_argv[1] }
+    headers = { 'Authorization' : 'token ' + sys_argv[1] }
 else:
     headers = {}
 
 
 def get_hugo_themes_list():
-    dbconnection = connect(DATABASENAME)
-    cursor = dbconnection.cursor()
-    cursor.execute("select ETag from hugothemes where name=?",(THEMESLISTREPO,))
-    old_ETag = cursor.fetchone()[0]
+    session = sessionmaker(bind=engine)()
+    themes_list_repo = session.query(Hugothemes).filter_by(name=THEMESLISTREPO).first()
     api_call_url = "https://api.github.com/repos/"+THEMESLISTREPO+"/contents"
+    if themes_list_repo.url != api_call_url: themes_list_repo.url = api_call_url
 
-    if old_ETag != None:
-        headers['If-None-Match'] = old_ETag
+    if themes_list_repo.ETag != None:
+        headers['If-None-Match'] = themes_list_repo.ETag
     else:
-        if 'If-None-Match' in headers:
-            del headers['If-None-Match']
+        if 'If-None-Match' in headers: del headers['If-None-Match']
 
     if len(headers) == 0:
         response = get(api_call_url)
     else:
         response = get(api_call_url, headers=headers)
     if response.status_code == 200:
-        ETag = response.headers['ETag']
-        sql = "update hugothemes set ETag=?,url=?,jsondump=? where name=?"
-        values=(ETag,api_call_url,response.text,THEMESLISTREPO)
-        cursor.execute(sql,values)
-        dbconnection.commit()
+        themes_list_repo.ETag = response.headers['ETag'].lstrip('W/')
+        themes_list_repo.jsondump = response.text
+        session.commit()
     elif response.status_code == 403:
-        print(response.status_code)
-        cursor.close()
-        dbconnection.close()
+        print(response.status_code,get_hugo_themes_list.__name__)
+        session.commit()
         write_reports()
         quit()
-    print(response.status_code)
-    cursor.close()
-    dbconnection.close()
+    print(response.status_code,get_hugo_themes_list.__name__)
 
 
 def update_hugo_themes_submodule_list():
-    dbconnection = connect(DATABASENAME)
-    cursor = dbconnection.cursor()
-    cursor.execute("select jsondump,dot_gitmodules_content from hugothemes where name=?",(THEMESLISTREPO,))
-    themes_json_string,dot_gitmodule_json_string = cursor.fetchone()
-    themes_json = json_loads(themes_json_string)
-    if dot_gitmodule_json_string:
-        dot_gitmodule_json = json_loads(dot_gitmodule_json_string)
+    session = sessionmaker(bind=engine)()
+    themes_list_repo = session.query(Hugothemes).filter_by(name=THEMESLISTREPO).first()
+    themes_json = json_loads(themes_list_repo.jsondump)
+    if themes_list_repo.dot_gitmodules_content:
+        dot_gitmodule_json = json_loads(themes_list_repo.dot_gitmodules_content)
     for theme in themes_json:
         if theme['name'] == '.gitmodules':
             new_gitmodules_sha = theme['sha']
             break
-    if not dot_gitmodule_json_string or new_gitmodules_sha != dot_gitmodule_json['sha']:
+    if (not dot_gitmodule_json) or (new_gitmodules_sha != dot_gitmodule_json['sha']):
         api_call_url = "https://api.github.com/repos/"+THEMESLISTREPO+"/contents/.gitmodules"
         response = get(api_call_url)
         if response.status_code == 200:
-            sql = "update hugothemes set dot_gitmodules_content=? where name=?"
-            values=(response.text,THEMESLISTREPO)
-            cursor.execute(sql,values)
-            dbconnection.commit()
-        print(response.status_code)
-    cursor.close()
-    dbconnection.close()
+            if themes_list_repo.dot_gitmodules_content != response.text:
+                themes_list_repo.dot_gitmodules_content = response.text
+                session.commit()
+        print(response.status_code,update_hugo_themes_submodule_list.__name__)
 
 
 def get_hugo_themes_submodule_list():
-    dbconnection = connect(DATABASENAME)
-    cursor = dbconnection.cursor()
-    cursor.execute("select dot_gitmodules_content from hugothemes where name=?",(THEMESLISTREPO,))
-    dot_gitmodule_json_string = cursor.fetchone()[0]
-    dot_gitmodule_json = json_loads(dot_gitmodule_json_string)
+    session = sessionmaker(bind=engine)()
+    dot_gitmodule_json_string = session.query(Hugothemes.dot_gitmodules_content).filter_by(name=THEMESLISTREPO).first()
+    dot_gitmodule_json = json_loads(dot_gitmodule_json_string[0])
     dot_gitmodule_content = b64decode(dot_gitmodule_json['content']).decode('utf-8').replace('\n\n','\n').split('\n')
     submodules = []
     for line in range(len(dot_gitmodule_content[:-1])):
@@ -99,55 +150,38 @@ def get_hugo_themes_submodule_list():
             if 'url = ' in dot_gitmodule_content[line+2]:
                 url = re.match(r'^.*(url = )(.*)$',dot_gitmodule_content[line+2]).group(2)
             submodules.append((name,path,url))
-    cursor.close()
-    dbconnection.close()
     return submodules
 
 
 def clean_up():
-    dbconnection = connect(DATABASENAME)
-    cursor = dbconnection.cursor()
-    new_name_list = []
+    new_name_list = set()
     submodules = get_hugo_themes_submodule_list()
     for submodule in submodules:
         submodule_name = re.sub(r'(^https://github.com/|^https://gitlab.com/|\.git$)','',submodule[2])
-        new_name_list.append(submodule_name)
-    cursor.execute("select name from hugothemes where name!=?",(THEMESLISTREPO,))
-    old_name_list = [name[0] for name in cursor]
+        new_name_list.add(submodule_name)
+    session = sessionmaker(bind=engine)()
+    old_name_list = [theme[0] for theme in session.query(Hugothemes.name).filter(Hugothemes.name!=THEMESLISTREPO).all()]
 
     for name in old_name_list:
         if name not in new_name_list:
-            cursor.execute("delete from hugothemes where name=?",(name,))
-            dbconnection.commit()
+            removed_theme = session.query(Hugothemes).filter_by(name=name).first()
+            session.delete(removed_theme)
 
-    cursor.execute("select jsondump from hugothemes where name=?",(THEMESLISTREPO,))
-    themes_json_string = cursor.fetchone()[0]
-    themes_json = json_loads(themes_json_string)
-    new_name_list = []
+    themes_json_string = session.query(Hugothemes.jsondump).filter_by(name=THEMESLISTREPO).first()
+    themes_json = json_loads(themes_json_string[0])
+    new_name_list = set()
     for theme in themes_json:
         if theme['git_url']:
             if 'gohugoio' not in theme['git_url']:
                 split_html_url = theme['html_url'].split('/')
                 new_short_name = split_html_url[3]+'/'+split_html_url[4]
-                new_name_list.append(new_short_name)
+                new_name_list.add(new_short_name)
 
     for name in old_name_list:
         if name not in new_name_list:
-            cursor.execute("delete from hugothemes where name=?",(name,))
-            dbconnection.commit()
-
-    cursor.close()
-    dbconnection.close()
-
-
-def get_non_github_themes():
-    dbconnection = connect(DATABASENAME)
-    cursor = dbconnection.cursor()
-    cursor.execute("select name from hugothemes_from_gitlab;")
-    non_github_theme_list = [theme[0] for theme in cursor]
-    cursor.close()
-    dbconnection.close()
-    return non_github_theme_list
+            removed_theme = session.query(Hugothemes).filter_by(name=name).first()
+            if removed_theme != None: session.delete(removed_theme)
+    session.commit()
 
 
 def parse_submodules_from_gitlab():
@@ -157,13 +191,9 @@ def parse_submodules_from_gitlab():
         if 'gitlab' in submodule[2]:
             temp_submodules_list.append(submodule)
     if (len(temp_submodules_list) > 0):
-        dbconnection = connect(DATABASENAME)
-        cursor = dbconnection.cursor()
-        cursor.execute("select jsondump from hugothemes where name=?",(THEMESLISTREPO,))
-        themes_json_string = cursor.fetchone()[0]
-        themes_json = json_loads(themes_json_string)
-        cursor.close()
-        dbconnection.close()
+        session = sessionmaker(bind=engine)()
+        themes_json_string = session.query(Hugothemes.jsondump).filter_by(name=THEMESLISTREPO).first()
+        themes_json = json_loads(themes_json_string[0])
         submodules_list = []
         for submodule in temp_submodules_list:
             for theme in themes_json:
@@ -171,75 +201,61 @@ def parse_submodules_from_gitlab():
                     if (theme['html_url'] == None) or (theme['git_url'] == None):
                         submodules_list.append((submodule[0],submodule[1],submodule[2],theme['sha']))
         if (len(submodules_list) > 0):
-            dbconnection = connect(DATABASENAME)
-            cursor = dbconnection.cursor()
             for submodule in submodules_list:
                 url = re.sub(r'\.git$','',submodule[2])
                 theme_name = url[19:]
-                cursor.execute("insert or ignore into hugothemes_from_gitlab (name) values (?)",[theme_name])
-                dbconnection.commit()
-                sql = "update hugothemes_from_gitlab set url=?,commit_sha=? where name=?"
-                values=(url,submodule[3],theme_name)
-                cursor.execute(sql,values)
-                dbconnection.commit()
-            cursor.close()
-            dbconnection.close()
+                theme = session.query(Hugothemes_from_gitlab).filter_by(name=theme_name).first()
+                if theme == None:
+                    session.add(Hugothemes_from_gitlab(name=theme_name,url=url,commit_sha=submodule[3]))
+                else:
+                    if theme.url != url: theme.url = url
+                    if theme.commit_sha != submodule[3]: theme.commit_sha = submodule[3]
+            session.commit()
 
 
 def parse_hugo_themes_list():
-    dbconnection = connect(DATABASENAME)
-    cursor = dbconnection.cursor()
-    cursor.execute("select jsondump from hugothemes where name=?",(THEMESLISTREPO,))
-    themes_json_string = cursor.fetchone()[0]
-    themes_json = json_loads(themes_json_string)
+    session = sessionmaker(bind=engine)()
+    themes_json_string = session.query(Hugothemes.jsondump).filter_by(name=THEMESLISTREPO).first()
+    themes_json = json_loads(themes_json_string[0])
     for x in themes_json:
         if x['git_url']:
             if 'gohugoio' not in x['git_url']:
                 theme_git_url = x['html_url'][:-46]
                 theme_git_name = theme_git_url[19:]
-                cursor.execute("insert or ignore into hugothemes (name) values (?)",[theme_git_name])
-                dbconnection.commit()
-                sql = "update hugothemes set url=?,commit_sha=? where name=?"
-                values=(theme_git_url,x['sha'],theme_git_name)
-                cursor.execute(sql,values)
-                dbconnection.commit()
-    cursor.close()
-    dbconnection.close()
+                theme = session.query(Hugothemes).filter_by(name=theme_git_name).first()
+                if theme == None:
+                    session.add(Hugothemes(name=theme_git_name,url=theme_git_url,commit_sha=x['sha']))
+                else:
+                    if theme.url != theme_git_url: theme.url = theme_git_url
+                    if theme.commit_sha != x['sha']: theme.commit_sha = x['sha']
+                session.commit()
 
 
 def get_gitlab_project_ids():
-    dbconnection = connect(DATABASENAME)
-    cursor = dbconnection.cursor()
-    cursor.execute("select name,url,id from hugothemes_from_gitlab;")
-    themes = [row for row in cursor]
+    session = sessionmaker(bind=engine)()
+    themes = (theme[0] for theme in session.query(Hugothemes_from_gitlab.name).all())
+    match = re.compile(r'(Project ID: )(\d{5,})')
     for theme in themes:
-        if theme[2] == None:
-            response = get(theme[1])
-            id_result = re.search(r'(Project ID: )(\d{5,})',response.text).group(2)
-            sql = "update hugothemes_from_gitlab set id=? where name=?"
-            values=(id_result,theme[0])
-            cursor.execute(sql,values)
-            dbconnection.commit()
-    cursor.close()
-    dbconnection.close()
+        gitlab_theme = session.query(Hugothemes_from_gitlab).filter_by(name=theme).one()
+        if gitlab_theme.gitlab_id == None:
+            response = get(gitlab_theme.url)
+            gitlab_theme.gitlab_id = match.search(response.text).group(2)
+            session.commit()
     return True
 
 
 def get_commit_info_for_hugo_themes():
-    non_github_theme_list = get_non_github_themes()
-    themes = []
-    dbconnection = connect(DATABASENAME)
-    cursor = dbconnection.cursor()
-    cursor.execute("select name,ETag,url,commit_sha from hugothemes where name!=?",(THEMESLISTREPO,))
-    for theme in cursor:
-        if theme[0] not in non_github_theme_list:
-            themes.append(theme)
-    for theme in themes:
-        name,old_ETag,url,commit_sha = theme
-        api_call_url = 'https://api.github.com/repos/' + name + '/commits/' + commit_sha
+    session = sessionmaker(bind=engine)()
+    non_github_theme_list = [theme[0] for theme in session.query(Hugothemes_from_gitlab.name).all()]
+    themes = set(theme[0] for theme in session.query(Hugothemes.name).filter(Hugothemes.name!=THEMESLISTREPO).all())
+    for theme in non_github_theme_list:
+        themes -= {theme}
+    for hugo_theme in themes:
+        theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
+        api_call_url = 'https://api.github.com/repos/' + theme.name + '/commits/' + theme.commit_sha
 
-        if old_ETag != None:
-            headers['If-None-Match'] = old_ETag
+        if theme.ETag != None:
+            headers['If-None-Match'] = theme.ETag
         else:
             if 'If-None-Match' in headers:
                 del headers['If-None-Match']
@@ -249,70 +265,52 @@ def get_commit_info_for_hugo_themes():
         else:
             response = get(api_call_url, headers=headers)
         if response.status_code == 200:
-            ETag = response.headers['ETag']
+            theme.ETag = response.headers['ETag'].lstrip('W/')
             result = response.json()
-            commit_date = result['commit']['author']['date']
-            commit_date_in_seconds = timegm(strptime(commit_date,'%Y-%m-%dT%H:%M:%SZ'))
-            sql = "update hugothemes set ETag=?,commit_date=?,commit_date_in_seconds=? where name=?"
-            values=(ETag,commit_date,commit_date_in_seconds,name)
-            cursor.execute(sql,values)
-            dbconnection.commit()
+            theme.commit_date = result['commit']['author']['date']
+            theme.commit_date_in_seconds = timegm(strptime(theme.commit_date,'%Y-%m-%dT%H:%M:%SZ'))
+            session.commit()
         elif response.status_code == 403:
-            print(response.status_code)
-            cursor.close()
-            dbconnection.close()
+            print(response.status_code,get_commit_info_for_hugo_themes.__name__)
             write_reports()
             quit()
-        print(response.status_code)
-    cursor.close()
-    dbconnection.close()
+        print(response.status_code,get_commit_info_for_hugo_themes.__name__)
     
 
 def get_commit_info_for_hugo_themes_from_gitlab():
     if get_gitlab_project_ids():
-        dbconnection = connect(DATABASENAME)
-        cursor = dbconnection.cursor()
-        cursor.execute("select name,url,commit_sha,id from hugothemes_from_gitlab")
-        hugo_themes_list = cursor.fetchall()
-        for theme in hugo_themes_list:
-            name,url,commit_sha,gitlab_project_id = theme
-            api_call_url = 'https://gitlab.com/api/v4/projects/' + gitlab_project_id + '/repository/commits/' + commit_sha
+        session = sessionmaker(bind=engine)()
+        themes = [theme[0] for theme in session.query(Hugothemes_from_gitlab.name).all()]
+        match = re.compile(r'(\.\d{3})(Z$)')
+        for hugo_theme in themes:
+            theme = session.query(Hugothemes_from_gitlab).filter_by(name=hugo_theme).one()
+            api_call_url = 'https://gitlab.com/api/v4/projects/' + theme.gitlab_id + '/repository/commits/' + theme.commit_sha
 
             response = get(api_call_url)
             if response.status_code == 200:
                 result = response.json()
-                commit_date = re.sub(r'(\.\d{3})(Z$)',r'\2',result['created_at'])
-                commit_date_in_seconds = timegm(strptime(commit_date,'%Y-%m-%dT%H:%M:%SZ'))
-                sql = "update hugothemes_from_gitlab set commit_date=?,commit_date_in_seconds=? where name=?"
-                values=(commit_date,commit_date_in_seconds,name)
-                cursor.execute(sql,values)
-                dbconnection.commit()
+                theme.commit_date = match.sub(r'\2',result['created_at'])
+                theme.commit_date_in_seconds = timegm(strptime(theme.commit_date,'%Y-%m-%dT%H:%M:%SZ'))
+                session.commit()
             elif response.status_code == 403:
-                print(response.status_code)
-                cursor.close()
-                dbconnection.close()
+                print(response.status_code,get_commit_info_for_hugo_themes_from_gitlab.__name__)
                 write_reports()
                 quit()
-            print(response.status_code)
-        cursor.close()
-        dbconnection.close()
+            print(response.status_code,get_commit_info_for_hugo_themes_from_gitlab.__name__)
     
 
 def get_stargazer_count_for_hugo_themes():
-    non_github_theme_list = get_non_github_themes()
-    themes = []
-    dbconnection = connect(DATABASENAME)
-    cursor = dbconnection.cursor()
-    cursor.execute("select name,repo_ETag from hugothemes where name!=?",(THEMESLISTREPO,))
-    for theme in cursor:
-        if theme[0] not in non_github_theme_list:
-            themes.append(theme)
-    for theme in themes:
-        name,old_ETag = theme
-        api_call_url = 'https://api.github.com/repos/' + name
+    session = sessionmaker(bind=engine)()
+    non_github_theme_list = [theme[0] for theme in session.query(Hugothemes_from_gitlab.name).all()]
+    themes = set(theme[0] for theme in session.query(Hugothemes.name).filter(Hugothemes.name!=THEMESLISTREPO).all())
+    for theme in non_github_theme_list:
+        themes -= {theme}
+    for hugo_theme in themes:
+        theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
+        api_call_url = 'https://api.github.com/repos/' + theme.name
 
-        if old_ETag != None:
-            headers['If-None-Match'] = old_ETag
+        if theme.repo_ETag != None:
+            headers['If-None-Match'] = theme.repo_ETag
         else:
             if 'If-None-Match' in headers:
                 del headers['If-None-Match']
@@ -322,67 +320,48 @@ def get_stargazer_count_for_hugo_themes():
         else:
             response = get(api_call_url, headers=headers)
         if response.status_code == 200:
-            repo_ETag = response.headers['ETag']
+            theme.repo_ETag = response.headers['ETag'].lstrip('W/')
             result = response.json()
-            stargazers_count = result['stargazers_count']
-            sql = "update hugothemes set repo_ETag=?,stargazers_count=? where name=?"
-            values=(repo_ETag,stargazers_count,name)
-            cursor.execute(sql,values)
-            dbconnection.commit()
+            theme.stargazers_count = result['stargazers_count']
+            session.commit()
         elif response.status_code == 403:
-            print(response.status_code)
-            cursor.close()
-            dbconnection.close()
+            print(response.status_code,get_stargazer_count_for_hugo_themes.__name__)
             write_reports()
             quit()
-        print(response.status_code)
-    cursor.close()
-    dbconnection.close()
+        print(response.status_code,get_stargazer_count_for_hugo_themes.__name__)
 
 
 def get_stargazer_count_for_hugo_themes_from_gitlab():
     if get_gitlab_project_ids():
-        dbconnection = connect(DATABASENAME)
-        cursor = dbconnection.cursor()
-        cursor.execute("select name,id from hugothemes_from_gitlab;")
-        themes = cursor.fetchall()
-        for theme in themes:
-            api_call_url = 'https://gitlab.com/api/v4/projects/' + theme[1]
-
+        session = sessionmaker(bind=engine)()
+        themes = [(theme,gitlab_id) for theme,gitlab_id in session.query(Hugothemes_from_gitlab.name,Hugothemes_from_gitlab.gitlab_id).all()]
+        for hugo_theme in themes:
+            theme = session.query(Hugothemes_from_gitlab).filter_by(name=hugo_theme[0]).one()
+            api_call_url = 'https://gitlab.com/api/v4/projects/' + hugo_theme[1]
             response = get(api_call_url)
             if response.status_code == 200:
                 result = response.json()
-                star_count = result['star_count']
-                sql = "update hugothemes_from_gitlab set star_count=? where name=?"
-                values=(star_count,theme[0])
-                cursor.execute(sql,values)
-                dbconnection.commit()
+                if theme.star_count != result['star_count']:
+                    theme.star_count = result['star_count']
+                session.commit()
             elif response.status_code == 403:
-                print(response.status_code)
-                cursor.close()
-                dbconnection.close()
+                print(response.status_code,get_stargazer_count_for_hugo_themes_from_gitlab.__name__)
                 write_reports()
                 quit()
-            print(response.status_code)
-        cursor.close()
-        dbconnection.close()
+            print(response.status_code,get_stargazer_count_for_hugo_themes_from_gitlab.__name__)
 
 
 def get_theme_dot_toml_for_each_hugo_themes():
-    non_github_theme_list = get_non_github_themes()
-    themes = []
-    dbconnection = connect(DATABASENAME)
-    cursor = dbconnection.cursor()
-    cursor.execute("select name,themes_toml_ETag from hugothemes where name!=?",(THEMESLISTREPO,))
-    for theme in cursor:
-        if theme[0] not in non_github_theme_list:
-            themes.append(theme)
-    for theme in themes:
-        name,old_ETag = theme
-        api_call_url = "https://api.github.com/repos/"+name+"/contents/theme.toml"
+    session = sessionmaker(bind=engine)()
+    non_github_theme_list = [theme[0] for theme in session.query(Hugothemes_from_gitlab.name).all()]
+    themes = set(theme[0] for theme in session.query(Hugothemes.name).filter(Hugothemes.name!=THEMESLISTREPO).all())
+    for theme in non_github_theme_list: themes -= {theme}
+    for hugo_theme in themes:
+        theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
+        api_call_url = "https://api.github.com/repos/"+theme.name+"/contents/theme.toml"
 
-        if old_ETag != None:
-            headers['If-None-Match'] = old_ETag
+        if theme.themes_toml_ETag != None:
+            headers['If-None-Match'] = theme.themes_toml_ETag
         else:
             if 'If-None-Match' in headers:
                 del headers['If-None-Match']
@@ -392,135 +371,116 @@ def get_theme_dot_toml_for_each_hugo_themes():
         else:
             response = get(api_call_url, headers=headers)
         if response.status_code == 200:
-            themes_toml_ETag = response.headers['ETag']
+            theme.themes_toml_ETag = response.headers['ETag'].lstrip('W/')
             result = response.json()
-            themes_toml_content = result['content']
-            sql = "update hugothemes set themes_toml_ETag=?,themes_toml_content=? where name=?"
-            values=(themes_toml_ETag,themes_toml_content,name)
-            cursor.execute(sql,values)
-            dbconnection.commit()
+            theme.themes_toml_content = result['content']
+            session.commit()
         elif response.status_code == 403:
-            print(response.status_code)
-            cursor.close()
-            dbconnection.close()
+            print(response.status_code,get_theme_dot_toml_for_each_hugo_themes.__name__)
             write_reports()
             quit()
-        print(response.status_code)
-    cursor.close()
-    dbconnection.close()
+        print(response.status_code,get_theme_dot_toml_for_each_hugo_themes.__name__)
 
 
 def get_theme_dot_toml_for_each_hugo_themes_from_gitlab():
     if get_gitlab_project_ids():
-        dbconnection = connect(DATABASENAME)
-        cursor = dbconnection.cursor()
-        cursor.execute("select name,id from hugothemes_from_gitlab")
-        themes = cursor.fetchall()
-        for theme in themes:
-            api_call_url = 'https://gitlab.com/api/v4/projects/' + theme[1] + '/repository/files/theme.toml?ref=master'
-
+        session = sessionmaker(bind=engine)()
+        themes = [(theme,gitlab_id) for theme,gitlab_id in session.query(Hugothemes_from_gitlab.name,Hugothemes_from_gitlab.gitlab_id).all()]
+        for hugo_theme in themes:
+            theme = session.query(Hugothemes_from_gitlab).filter_by(name=hugo_theme[0]).one()
+            api_call_url = 'https://gitlab.com/api/v4/projects/' + hugo_theme[1] + '/repository/files/theme.toml?ref=master'
             response = get(api_call_url)
             if response.status_code == 200:
                 result = response.json()
-                themes_toml_content = result['content']
-                sql = "update hugothemes_from_gitlab set themes_toml_content=? where name=?"
-                values=(themes_toml_content,theme[0])
-                cursor.execute(sql,values)
-                dbconnection.commit()
+                theme.themes_toml_content = result['content']
+                session.commit()
             elif response.status_code == 403:
-                print(response.status_code)
-                cursor.close()
-                dbconnection.close()
+                print(response.status_code,get_theme_dot_toml_for_each_hugo_themes_from_gitlab.__name__)
                 write_reports()
                 quit()
-            print(response.status_code)
-        cursor.close()
-        dbconnection.close()
+            print(response.status_code,get_theme_dot_toml_for_each_hugo_themes_from_gitlab.__name__)
 
 
 def coalesce_themes():
     if get_gitlab_project_ids():
-        dbconnection = connect(DATABASENAME)
-        cursor = dbconnection.cursor()
-        cursor.execute("select name,url,commit_sha,commit_date,commit_date_in_seconds,star_count,themes_toml_content from hugothemes_from_gitlab")
-        themes = cursor.fetchall()
-        for theme in themes:
-            cursor.execute("insert or ignore into hugothemes (name) values (?)",[theme[0]])
-            dbconnection.commit()
-            sql = "update hugothemes set url=?,commit_sha=?,commit_date=?,commit_date_in_seconds=?,stargazers_count=?,themes_toml_content=? where name=?"
-            values=(theme[1],theme[2],theme[3],theme[4],theme[5],theme[6],theme[0])
-            cursor.execute(sql,values)
-            dbconnection.commit()
-        cursor.close()
-        dbconnection.close()
+        session = sessionmaker(bind=engine)()
+        themes = [theme[0] for theme in session.query(Hugothemes_from_gitlab.name).all()]
+        for hugo_theme in themes:
+            htfgitlab = session.query(Hugothemes_from_gitlab).filter_by(name=hugo_theme).one()
+            theme = session.query(Hugothemes).filter_by(name=hugo_theme).first()
+            if theme == None:
+                session.add(Hugothemes(name=hugo_theme,url=htfgitlab.url,commit_sha=htfgitlab.commit_sha,
+                    commit_date=htfgitlab.commit_date,commit_date_in_seconds=htfgitlab.commit_date_in_seconds,
+                    stargazers_count=htfgitlab.star_count,themes_toml_content=htfgitlab.themes_toml_content))
+            else:
+                if theme.url != htfgitlab.url: theme.url = htfgitlab.url
+                if theme.commit_sha != htfgitlab.commit_sha: theme.commit_sha = htfgitlab.commit_sha
+                if theme.commit_date != htfgitlab.commit_date: theme.commit_date = htfgitlab.commit_date
+                if theme.commit_date_in_seconds != htfgitlab.commit_date_in_seconds:
+                    theme.commit_date_in_seconds = htfgitlab.commit_date_in_seconds
+                if theme.stargazers_count != htfgitlab.star_count: theme.stargazers_count = htfgitlab.star_count
+                theme.themes_toml_content = htfgitlab.themes_toml_content
+            session.commit()
 
 
 def update_tags_list_for_each_hugo_themes():
-    dbconnection = connect(DATABASENAME)
-    cursor = dbconnection.cursor()
-    cursor.execute("select name,themes_toml_content from hugothemes where name!=?",(THEMESLISTREPO,))
-    hugo_themes_list = cursor.fetchall()
-    for theme in hugo_themes_list:
-        if theme[1] != None:
-            content = b64decode(theme[1]).decode('utf-8')
+    session = sessionmaker(bind=engine)()
+    themes = [theme[0] for theme in session.query(Hugothemes.name).filter(Hugothemes.name!=THEMESLISTREPO).all()]
+    match = re.compile(r'\s(\d+\.\d+\.\d+)\s')
+    for hugo_theme in themes:
+        theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
+        if theme.themes_toml_content != None:
+            content = b64decode(theme.themes_toml_content).decode('utf-8')
             # put quotes around any unquoted double-dotted version numbers
             # because python toml libraries will error out on those
-            theme_toml = toml.loads(re.sub(r'\s(\d+\.\d+\.\d+)\s',r'"\1"',content))
+            theme_toml = toml.loads(match.sub(r'"\1"',content))
             if 'tags' in theme_toml:
                 if len(theme_toml['tags']) > 0:
                     theme_tags = [tag.lower() for tag in theme_toml['tags'] if len(tag) > 0]
-                    num_tags = len(theme_tags)
-                    if num_tags > 0:
-                        tag_list = str(theme_tags)
+                    if theme.num_tags != len(theme_tags): theme.num_tags = len(theme_tags)
+                    if theme.num_tags > 0:
+                        if theme.tags_list != str(theme_tags): theme.tags_list = str(theme_tags)
                     else:
-                        tag_list = None
+                        if theme.tags_list != None: theme.tags_list = None
                 else:
-                    tag_list = None
-                    num_tags = 0
+                    if theme.tags_list != None: theme.tags_list = None
+                    if theme.num_tags != 0: theme.num_tags = 0
             else:
-                tag_list = None
-                num_tags = 0
+                if theme.tags_list != None: theme.tags_list = None
+                if theme.num_tags != 0: theme.num_tags = 0
         else:
-            tag_list = None
-            num_tags = 0
-        sql = "update hugothemes set tags_list=?,num_tags=? where name=?"
-        values=(tag_list,num_tags,theme[0])
-        cursor.execute(sql,values)
-        dbconnection.commit()
-    cursor.close()
-    dbconnection.close()
+            if theme.tags_list != None: theme.tags_list = None
+            if theme.num_tags != 0: theme.num_tags = 0
+        session.commit()
 
 
 def update_tag_table():
-    dbconnection = connect(DATABASENAME)
-    cursor = dbconnection.cursor()
-    cursor.execute("select name,tags_list from hugothemes where name!=?",(THEMESLISTREPO,))
-    hugo_themes_list = cursor.fetchall()
-    tags_list = []
-    for theme in hugo_themes_list:
+    session = sessionmaker(bind=engine)()
+    themes = [(theme,tags_list) for theme,tags_list in session.query(Hugothemes.name,Hugothemes.tags_list)
+            .filter(Hugothemes.name!=THEMESLISTREPO).all()]
+    tags_list = set()
+    for theme in themes:
         if theme[1] != None:
             tags = literal_eval(theme[1])
             for tag in tags:
                 if len(tag) > 0:
-                    if tag not in tags_list:
-                        tags_list.append(tag)
+                    tags_list.add(tag)
 
-    for tag in tags_list:
-        cursor.execute("insert or ignore into tags (tag) values (?)",[tag])
-        dbconnection.commit()
+    for hugo_tag in tags_list:
         theme_list = []
-        for theme in hugo_themes_list:
+        for theme in themes:
             if theme[1] != None:
                 tags = literal_eval(theme[1])
-                if tag in tags:
+                if hugo_tag in tags:
                     theme_list.append(theme[0])
-        sql = "update tags set theme_list=?,num_themes=? where tag=?"
-        values=(str(theme_list),len(theme_list),tag)
-        cursor.execute(sql,values)
-        dbconnection.commit()
-
-    cursor.close()
-    dbconnection.close()
+        tag = session.query(Tags).filter_by(tag=hugo_tag).first()
+        if tag == None:
+            session.add(Tag(tag=hugo_tag,theme_list=str(theme_list),num_themes=len(theme_list)))
+        else:
+            theme_list,num_themes = str(theme_list),len(theme_list)
+            if tag.theme_list != theme_list: tag.theme_list = theme_list
+            if tag.num_themes != num_themes: tag.num_themes = num_themes
+    session.commit()
 
 
 def make_buttons(tags_list):
@@ -567,19 +527,13 @@ def make_section(section_info):
 
 
 def write_reports():
-    dbconnection = connect(DATABASENAME)
-    cursor = dbconnection.cursor()
-    cursor.execute("select name,commit_sha,commit_date,stargazers_count,url from hugothemes where name!=? order by commit_date_in_seconds DESC",(THEMESLISTREPO,))
-    themes_bydate_list = cursor.fetchall()
-    cursor.execute("select name,commit_sha,commit_date,stargazers_count,url from hugothemes where name!=? order by stargazers_count DESC",(THEMESLISTREPO,))
-    themes_bystars_list = cursor.fetchall()
+    session = sessionmaker(bind=engine)()
+    u,v,w,x,y,z = Hugothemes.name,Hugothemes.commit_sha,Hugothemes.commit_date,Hugothemes.stargazers_count,Hugothemes.url,Hugothemes.commit_date_in_seconds
+    themes_bydate_list = [(vals) for (vals) in session.query(u,v,w,x,y).filter(Hugothemes.name!=THEMESLISTREPO).order_by(z.desc())]
+    themes_bystars_list = [(vals) for (vals) in session.query(u,v,w,x,y).filter(Hugothemes.name!=THEMESLISTREPO).order_by(x.desc())]
     themes = [theme[0] for theme in themes_bystars_list]
     tags_list = [('all',str(themes),len(themes))]
-    cursor.execute("select tag,theme_list,num_themes from tags where num_themes > 2 order by num_themes DESC")
-    for row in cursor:
-        tags_list.append(row)
-    cursor.close()
-    dbconnection.close()
+    tags_list += [(vals) for (vals) in session.query(Tags.tag,Tags.theme_list,Tags.num_themes).filter(Tags.num_themes > 2).order_by(Tags.num_themes.desc())]
 
     reportpage = "<!DOCTYPE html>\n<html lang='en'>\n"
     reportpage += "\t<head>\n\t\t<title>Hugo Themes Report</title>\n\t\t<meta charset='utf-8'>"
@@ -619,5 +573,3 @@ if __name__=="__main__":
     update_tags_list_for_each_hugo_themes()
     update_tag_table()
     write_reports()
-    """
-    """
