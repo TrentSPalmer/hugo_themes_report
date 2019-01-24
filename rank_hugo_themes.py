@@ -475,7 +475,7 @@ def update_tag_table():
                     theme_list.append(theme[0])
         tag = session.query(Tags).filter_by(tag=hugo_tag).first()
         if tag == None:
-            session.add(Tag(tag=hugo_tag,theme_list=str(theme_list),num_themes=len(theme_list)))
+            session.add(Tags(tag=hugo_tag,theme_list=str(theme_list),num_themes=len(theme_list)))
         else:
             theme_list,num_themes = str(theme_list),len(theme_list)
             if tag.theme_list != theme_list: tag.theme_list = theme_list
