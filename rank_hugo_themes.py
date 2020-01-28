@@ -289,7 +289,7 @@ def get_commit_info_for_hugo_themes_from_gitlab():
             response = get(api_call_url)
             if response.status_code == 200:
                 result = response.json()
-                theme.commit_date = match.sub(r'\2',result['created_at'])
+                theme.commit_date = (match.sub(r'\2',result['created_at']))[0:19] + 'Z'
                 theme.commit_date_in_seconds = timegm(strptime(theme.commit_date,'%Y-%m-%dT%H:%M:%SZ'))
                 session.commit()
             elif response.status_code == 403:
