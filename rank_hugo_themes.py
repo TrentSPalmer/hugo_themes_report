@@ -432,8 +432,9 @@ def update_tags_list_for_each_hugo_themes():
         if theme.themes_toml_content != None:
             content = b64decode(theme.themes_toml_content).decode('utf-8')
             # put quotes around any unquoted double-dotted version numbers
+            # (and add a newline afterwards)
             # because python toml libraries will error out on those
-            theme_toml = toml.loads(match.sub(r'"\1"',content))
+            theme_toml = toml.loads(match.sub(r'"\1"\n',content))
             if 'tags' in theme_toml:
                 if len(theme_toml['tags']) > 0:
                     theme_tags = [tag.lower() for tag in theme_toml['tags'] if len(tag) > 0]
