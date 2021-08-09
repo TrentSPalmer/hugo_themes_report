@@ -467,7 +467,7 @@ def make_table(themes_info):
     table = "\t<div class='container'>\n\t\t<table class='table monospace'>\n\t\t\t<thead><tr><th scope='col'>" + themes_info[1] + " (tag) " + themes_info[2] + "</th><th scope='col'>Date</th></tr></thead>\n\t\t\t<tbody>\n"
     for theme in themes_info[0]:
         name = theme[0].split('/')[1]
-        row = "\t\t\t\t<tr><td scope='row'>" + "<a target='_blank' href='" + theme[4] + "'>" + name + "</a>""</td>"
+        row = f"\t\t\t\t<tr><td scope='row'><a target='_blank' href='https://{theme[4]}'>{name}</a></td>"
         row += "<td nowrap>" + theme[2][:10] + "</td>"
         row += "<td align='right' nowrap style='padding-left:1em;'>" + str(theme[3]) + '&#x2605' + "</td>"
         row += "<td align='right' style='padding-left:1em;'>" + theme[1][:6] + "</td></tr>\n"
@@ -491,8 +491,8 @@ def make_section(section_info):
 def write_reports():
     session = sessionmaker(bind=engine)()
     u, v, w, x, y, z = Hugothemes.name, Hugothemes.commit_sha, Hugothemes.commit_date, Hugothemes.stargazers_count, Hugothemes.url, Hugothemes.commit_date_in_seconds
-    themes_bydate_list = [(vals) for (vals) in session.query(u, v, w, x, y).filter(Hugothemes.name != THEMESLISTREPO).order_by(z.desc())]
-    themes_bystars_list = [(vals) for (vals) in session.query(u, v, w, x, y).filter(Hugothemes.name != THEMESLISTREPO).order_by(x.desc())]
+    themes_bydate_list = [(vals) for (vals) in session.query(u, v, w, x, y).order_by(z.desc())]
+    themes_bystars_list = [(vals) for (vals) in session.query(u, v, w, x, y).order_by(x.desc())]
     themes = [theme[0] for theme in themes_bystars_list]
     tags_list = [('all', str(themes), len(themes))]
     tags_list += [(vals) for (vals) in session.query(Tags.tag, Tags.theme_list, Tags.num_themes).filter(Tags.num_themes > 2).order_by(Tags.num_themes.desc())]
