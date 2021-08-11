@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <title>>Hugo Themes Report</title>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>{% include 'css/main.css' %}</style>
+  </head>
+  <body>
+    <h1 id="title">
+      <a href="https://github.com/TrentSPalmer/hugo_themes_report" target="_blank">Hugo Themes Report</a>
+    </h1>
+    <button type="button" id="selection-button" class="collapsible">Select Tags/Features</button>
+    <div id="selection-menu">
+    </div>
+    <div id="results">
+    </div>
+  <script>
+    var themes = {{ themes }};
+    {% include 'js/selectionMenuCollapse.js' %}
+    {% include 'js/getAvailableTagsAndFeatures.js' %}
+    {% include 'js/buildSortByDiv.js' %}
+    {% include 'js/buildSelectionMenu.js' %}
+    {% include 'js/buildThemeTableRow.js' %}
+    {% include 'js/buildPage.js' %}
+  </script>
+  </body>
+</html>

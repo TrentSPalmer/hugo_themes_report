@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # rank_hugo_themes.py
 
+from jinja2 import Environment, FileSystemLoader
 import re
 import toml
 from calendar import timegm
@@ -17,6 +18,9 @@ from sqlalchemy.orm import deferred, sessionmaker
 
 engine = create_engine('sqlite:///hugothemes.db', echo=False)
 Base = declarative_base()
+file_loader = FileSystemLoader('templates')
+env = Environment(loader=file_loader)
+template = env.get_template('base.html')
 
 
 class Tags(Base):
@@ -72,17 +76,19 @@ class Hugothemes(Base):
     tags_list = Column(TEXT)
     num_tags = Column(Integer)
     default_branch = Column(TEXT)
+    features_list = Column(TEXT)
+    num_features = Column(Integer)
 
     def __repr__(self):
         repr_string = "<(name = '%s', ETag = '%s', url = '%s', commit_sha = '%s', commit_date = '%s'"
         repr_string += ", commit_date_in_seconds = '%s', repo_ETag = '%s', stargazers_count = '%s', themes_toml_ETag = '%s'"
-        repr_string += ", themes_toml_content = '%s', tags_list = '%s', num_tags = '%s', default_branch = '%s')>"
+        repr_string += ", themes_toml_content = '%s', tags_list = '%s', num_tags = '%s', default_branch = '%s', features_list = '%s', num_features = '%s')>"
         repr_values = (
             self.name, self.ETag, self.url,
             self.commit_sha, self.commit_date, self.commit_date_in_seconds,
             self.repo_ETag, self.stargazers_count, self.themes_toml_ETag,
             self.themes_toml_content, self.tags_list,
-            self.num_tags, self.default_branch
+            self.num_tags, self.default_branch, self.features_list, self.num_features,
         )
         return repr_string % repr_values
 
@@ -384,9 +390,51 @@ def coalesce_themes():
         session.commit()
 
 
+def update_features_list_for_each_hugo_themes():
+    session = sessionmaker(bind=engine)()
+    themes = [theme[0] for theme in session.query(Hugothemes.name).all()]
+    match = re.compile(r'\s(\d+\.\d+\.\d+)\s')
+    for hugo_theme in themes:
+        theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
+        if theme.themes_toml_content is not None:
+            content = b64decode(theme.themes_toml_content).decode('utf-8')
+            theme_toml = toml.loads(match.sub(r'"\1"\n', content))
+            if 'features' in theme_toml:
+                if len(theme_toml['features']) > 0:
+                    theme_features = [feature.lower() for feature in theme_toml['features'] if len(feature) > 0]
+                    if theme.num_features != len(theme_features): theme.num_features = len(theme_features)
+                    if theme.num_features > 0:
+                        if theme.features_list != str(theme_features): theme.features_list = str(theme_features)
+                    else:
+                        if theme.features_list is not None: theme.features_list = None
+                else:
+                    if theme.features_list is not None: theme.features_list = None
+                    if theme.num_features != 0: theme.num_features = 0
+            else:
+                if theme.features_list is not None: theme.features_list = None
+                if theme.num_features != 0: theme.num_features = 0
+        else:
+            if theme.features_list is not None: theme.features_list = None
+            if theme.num_features != 0: theme.num_features = 0
+        session.commit()
+
+
+def get_corrected_tags(tags):
+    result = []
+    correct = True
+    for tag in tags:
+        if (len(tag) > 50): correct = False
+    if not correct:
+        for tag in tags:
+            result += [x.lstrip() for x in tag.split(',')]
+        return result
+    else:
+        return tags
+
+
 def update_tags_list_for_each_hugo_themes():
     session = sessionmaker(bind=engine)()
-    themes = [theme[0] for theme in session.query(Hugothemes.name).filter(Hugothemes.name != THEMESLISTREPO).all()]
+    themes = [theme[0] for theme in session.query(Hugothemes.name).all()]
     match = re.compile(r'\s(\d+\.\d+\.\d+)\s')
     for hugo_theme in themes:
         theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
@@ -398,7 +446,8 @@ def update_tags_list_for_each_hugo_themes():
             theme_toml = toml.loads(match.sub(r'"\1"\n', content))
             if 'tags' in theme_toml:
                 if len(theme_toml['tags']) > 0:
-                    theme_tags = [tag.lower() for tag in theme_toml['tags'] if len(tag) > 0]
+                    corrected_tags = get_corrected_tags(theme_toml['tags'])
+                    theme_tags = [tag.lower() for tag in corrected_tags if len(tag) > 0]
                     if theme.num_tags != len(theme_tags): theme.num_tags = len(theme_tags)
                     if theme.num_tags > 0:
                         if theme.tags_list != str(theme_tags): theme.tags_list = str(theme_tags)
@@ -519,7 +568,33 @@ def write_reports():
     by_date.close()
 
 
+def generate_report():
+    session = sessionmaker(bind=engine)()
+    hugo_themes = [
+        {
+            'name': theme.name,
+            'commit': theme.commit_sha[0:6],
+            'date': theme.commit_date[0:10],
+            'date_in_seconds': theme.commit_date_in_seconds,
+            'url': f'https://{theme.url}',
+            'short_name': theme.name.split('/')[1],
+            'num_stars': theme.stargazers_count,
+            'tags': literal_eval(theme.tags_list) if theme.tags_list is not None else [],
+            'features': literal_eval(theme.features_list) if theme.features_list is not None else [],
+        } for theme in session.query(Hugothemes).all()
+    ]
+    output = template.render(themes=hugo_themes)
+    index_page = open('hugo-themes-report/hugo-themes-report.html', 'w')
+    index_page.write(output)
+    index_page.close()
+
+
 if __name__ == "__main__":
+    '''
+    update_tags_list_for_each_hugo_themes()
+    update_features_list_for_each_hugo_themes()
+    generate_report()
+    '''
     get_hugo_themes_list()
     if len(THEMESLIST) > 300:
         clean_up()
@@ -534,5 +609,7 @@ if __name__ == "__main__":
         get_theme_dot_toml_for_each_hugo_themes_from_gitlab()
         coalesce_themes()
         update_tags_list_for_each_hugo_themes()
+        update_features_list_for_each_hugo_themes()
         update_tag_table()
-        write_reports()
+        # write_reports()
+        generate_report()
