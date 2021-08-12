@@ -1,4 +1,4 @@
-function getAvailableFeatures(sorted_themes) {
+function getAvailableFeatures(sorted_themes, featureSortBy) {
   let result = [];
   sorted_themes.forEach(x => {
     x.features.forEach(feature => {
@@ -18,11 +18,16 @@ function getAvailableFeatures(sorted_themes) {
       }
     });
   });
-  // return result.sort((a, b) => a.feature.localeCompare(b.feature));
-  return result.sort((a, b) => b.num_themes - a.num_themes);
+  if (featureSortBy === 'numThemes') {
+    return result
+      .sort((a, b) => a.feature.localeCompare(b.feature))
+      .sort((a, b) => b.num_themes - a.num_themes);
+  } else {
+    return result.sort((a, b) => a.feature.localeCompare(b.feature));
+  }
 }
 
-function getAvailableTags(sorted_themes) {
+function getAvailableTags(sorted_themes, tagSortBy) {
   let result = [];
   sorted_themes.forEach(x => {
     x.tags.forEach(tag => {
@@ -42,7 +47,13 @@ function getAvailableTags(sorted_themes) {
       }
     });
   });
-  return result.sort((a, b) => b.num_themes - a.num_themes);
+  if (tagSortBy === 'numThemes') {
+    return result
+      .sort((a, b) => a.tag.localeCompare(b.tag))
+      .sort((a, b) => b.num_themes - a.num_themes);
+  } else {
+    return result.sort((a, b) => a.tag.localeCompare(b.tag));
+  }
 }
 
 

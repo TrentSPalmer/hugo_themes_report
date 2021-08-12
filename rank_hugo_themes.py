@@ -401,7 +401,7 @@ def update_features_list_for_each_hugo_themes():
             theme_toml = toml.loads(match.sub(r'"\1"\n', content))
             if 'features' in theme_toml:
                 if len(theme_toml['features']) > 0:
-                    theme_features = [feature.lower() for feature in theme_toml['features'] if len(feature) > 0]
+                    theme_features = [feature.lower() for feature in theme_toml['features'] if len(feature) > 1]
                     if theme.num_features != len(theme_features): theme.num_features = len(theme_features)
                     if theme.num_features > 0:
                         if theme.features_list != str(theme_features): theme.features_list = str(theme_features)
@@ -447,7 +447,7 @@ def update_tags_list_for_each_hugo_themes():
             if 'tags' in theme_toml:
                 if len(theme_toml['tags']) > 0:
                     corrected_tags = get_corrected_tags(theme_toml['tags'])
-                    theme_tags = [tag.lower() for tag in corrected_tags if len(tag) > 0]
+                    theme_tags = [tag.lower() for tag in corrected_tags if len(tag) > 1]
                     if theme.num_tags != len(theme_tags): theme.num_tags = len(theme_tags)
                     if theme.num_tags > 0:
                         if theme.tags_list != str(theme_tags): theme.tags_list = str(theme_tags)

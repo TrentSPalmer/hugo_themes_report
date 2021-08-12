@@ -7,6 +7,24 @@ function getSortBy() {
   }
 }
 
+function getTagSortBy() {
+  let tagSortByNumThemes = document.getElementById('tagSortByNumThemes');
+  if (tagSortByNumThemes === null) {
+    return 'numThemes';
+  } else {
+    return tagSortByNumThemes.checked ? 'numThemes' : 'name';
+  }
+}
+
+function getFeatureSortBy() {
+  let featureSortByNumThemes = document.getElementById('featureSortByNumThemes');
+  if (featureSortByNumThemes === null) {
+    return 'numThemes';
+  } else {
+    return featureSortByNumThemes.checked ? 'numThemes' : 'name';
+  }
+}
+
 function getSortedThemes(themeList, sortedBy) {
   if (sortedBy === 'date') {
     return themeList.sort((a, b) => b.date_in_seconds - a.date_in_seconds);
