@@ -7,7 +7,6 @@ import toml
 from calendar import timegm
 from time import strptime
 from requests import get
-# from json import loads as json_loads
 from sys import argv as sys_argv
 from base64 import b64decode
 from ast import literal_eval
@@ -21,19 +20,6 @@ Base = declarative_base()
 file_loader = FileSystemLoader('templates')
 env = Environment(loader=file_loader)
 template = env.get_template('base.html')
-
-
-class Tags(Base):
-    __tablename__ = 'tags'
-
-    tag = Column(VARCHAR, primary_key=True)
-    theme_list = Column(TEXT)
-    num_themes = Column(Integer)
-
-    def __repr__(self):
-        repr_string = "<(tag = '%s', theme_list = '%s', num_themes = '%s')>"
-        repr_values = (self.tag, self.theme_list, self.num_themes)
-        return repr_string % repr_values
 
 
 class Hugothemes_from_gitlab(Base):
@@ -50,14 +36,7 @@ class Hugothemes_from_gitlab(Base):
     default_branch = Column(TEXT)
 
     def __repr__(self):
-        repr_string = "<(name = '%s', url = '%s', commit_sha = '%s', gitlab_id = '%s', commit_date_in_seconds = '%s'"
-        repr_string += ", commit_date = '%s', star_count = '%s', themes_toml_content = '%s', default_branch = '%s')>"
-        repr_values = (
-            self.name, self.commit_sha, self.gitlab_id,
-            self.commit_date_in_seconds, self.commit_date,
-            self.star_count, self.themes_toml_content, self.default_branch
-        )
-        return repr_string % repr_values
+        return f"<Hugothemes_from_gitlab(name={self.name})>"
 
 
 class Hugothemes(Base):
@@ -80,17 +59,7 @@ class Hugothemes(Base):
     num_features = Column(Integer)
 
     def __repr__(self):
-        repr_string = "<(name = '%s', ETag = '%s', url = '%s', commit_sha = '%s', commit_date = '%s'"
-        repr_string += ", commit_date_in_seconds = '%s', repo_ETag = '%s', stargazers_count = '%s', themes_toml_ETag = '%s'"
-        repr_string += ", themes_toml_content = '%s', tags_list = '%s', num_tags = '%s', default_branch = '%s', features_list = '%s', num_features = '%s')>"
-        repr_values = (
-            self.name, self.ETag, self.url,
-            self.commit_sha, self.commit_date, self.commit_date_in_seconds,
-            self.repo_ETag, self.stargazers_count, self.themes_toml_ETag,
-            self.themes_toml_content, self.tags_list,
-            self.num_tags, self.default_branch, self.features_list, self.num_features,
-        )
-        return repr_string % repr_values
+        return f"<Hugothemes(name={self.name})>"
 
 
 OLDTHEMESLISTREPO = 'gohugoio/hugoThemes'
@@ -225,7 +194,6 @@ def get_commit_info_for_hugo_themes():
             session.commit()
         elif response.status_code == 403:
             print(response.status_code, get_commit_info_for_hugo_themes.__name__)
-            # write_reports()
             quit()
         elif response.status_code == 404:
             print(response.status_code, get_commit_info_for_hugo_themes.__name__, hugo_theme)
@@ -250,14 +218,13 @@ def get_commit_info_for_hugo_themes_from_gitlab():
             session.commit()
         elif response.status_code == 403:
             print(response.status_code, get_commit_info_for_hugo_themes_from_gitlab.__name__)
-            # write_reports()
             quit()
         elif response.status_code == 404:
             print(response.status_code, get_commit_info_for_hugo_themes_from_gitlab.__name__, hugo_theme)
         print(response.status_code, get_commit_info_for_hugo_themes_from_gitlab.__name__)
 
 
-def get_stargazer_count_for_hugo_themes():
+def get_repo_info_for_hugo_themes():
     session = sessionmaker(bind=engine)()
     theme_names_from_github = get_github_themes_name_list()
     for hugo_theme in theme_names_from_github:
@@ -281,15 +248,14 @@ def get_stargazer_count_for_hugo_themes():
             theme.default_branch = result['default_branch']
             session.commit()
         elif response.status_code == 403:
-            print(response.status_code, get_stargazer_count_for_hugo_themes.__name__)
-            # write_reports()
+            print(response.status_code, get_repo_info_for_hugo_themes.__name__)
             quit()
         elif response.status_code == 404:
-            print(response.status_code, get_stargazer_count_for_hugo_themes.__name__, hugo_theme)
-        print(response.status_code, get_stargazer_count_for_hugo_themes.__name__)
+            print(response.status_code, get_repo_info_for_hugo_themes.__name__, hugo_theme)
+        print(response.status_code, get_repo_info_for_hugo_themes.__name__)
 
 
-def get_stargazer_count_for_hugo_themes_from_gitlab():
+def get_repo_info_for_hugo_themes_from_gitlab():
     session = sessionmaker(bind=engine)()
     theme_names_from_gitlab = get_gitlab_themes_name_list()
     for hugo_theme in theme_names_from_gitlab:
@@ -304,12 +270,11 @@ def get_stargazer_count_for_hugo_themes_from_gitlab():
                 theme.default_branch = result['default_branch']
             session.commit()
         elif response.status_code == 403:
-            print(response.status_code, get_stargazer_count_for_hugo_themes_from_gitlab.__name__)
-            # write_reports()
+            print(response.status_code, get_repo_info_for_hugo_themes_from_gitlab.__name__)
             quit()
         elif response.status_code == 404:
-            print(response.status_code, get_stargazer_count_for_hugo_themes_from_gitlab.__name__, hugo_theme)
-        print(response.status_code, get_stargazer_count_for_hugo_themes_from_gitlab.__name__)
+            print(response.status_code, get_repo_info_for_hugo_themes_from_gitlab.__name__, hugo_theme)
+        print(response.status_code, get_repo_info_for_hugo_themes_from_gitlab.__name__)
 
 
 def get_theme_dot_toml_for_each_hugo_themes():
@@ -340,7 +305,6 @@ def get_theme_dot_toml_for_each_hugo_themes():
             session.commit()
         elif response.status_code == 403:
             print(response.status_code, get_theme_dot_toml_for_each_hugo_themes.__name__)
-            # write_reports()
             quit()
         elif response.status_code == 404:
             print(response.status_code, get_theme_dot_toml_for_each_hugo_themes.__name__, hugo_theme)
@@ -360,7 +324,6 @@ def get_theme_dot_toml_for_each_hugo_themes_from_gitlab():
             session.commit()
         elif response.status_code == 403:
             print(response.status_code, get_theme_dot_toml_for_each_hugo_themes_from_gitlab.__name__)
-            # write_reports()
             quit()
         elif response.status_code == 404:
             print(response.status_code, get_theme_dot_toml_for_each_hugo_themes_from_gitlab.__name__, hugo_theme)
@@ -465,109 +428,6 @@ def update_tags_list_for_each_hugo_themes():
         session.commit()
 
 
-def update_tag_table():
-    session = sessionmaker(bind=engine)()
-    themes = [(theme, tags_list) for theme, tags_list in session.query(
-        Hugothemes.name, Hugothemes.tags_list).filter(Hugothemes.name != THEMESLISTREPO).all()]
-    tags_list = set()
-    for theme in themes:
-        if theme[1] is not None:
-            tags = literal_eval(theme[1])
-            for tag in tags:
-                if len(tag) > 0:
-                    tags_list.add(tag)
-
-    for hugo_tag in tags_list:
-        theme_list = []
-        for theme in themes:
-            if theme[1] is not None:
-                tags = literal_eval(theme[1])
-                if hugo_tag in tags:
-                    theme_list.append(theme[0])
-        tag = session.query(Tags).filter_by(tag=hugo_tag).first()
-        if tag is None:
-            session.add(Tags(tag=hugo_tag, theme_list=str(theme_list), num_themes=len(theme_list)))
-        else:
-            theme_list, num_themes = str(theme_list), len(theme_list)
-            if tag.theme_list != theme_list: tag.theme_list = theme_list
-            if tag.num_themes != num_themes: tag.num_themes = num_themes
-    session.commit()
-
-
-def make_buttons(tags_list):
-    button_block = "\t\t<div id='all-tags' class='d-flex flex-wrap justify-content-around'>\n"
-    for tag in tags_list:
-        button_block += "\t\t\t<div class='d-flex'><a href='#" + tag[0] + "-by-date'><button type='button' class='btn btn-outline-primary'>" + tag[0] + ", " + str(tag[2]) + "</button></a></div>\n"
-    button_block += "\t\t</div>\n"
-    return button_block
-
-
-def make_nav_buttons(button_info):
-    button_block = "\t\t<div id='" + button_info[0] + "-" + button_info[1] + "' class='d-flex flex-wrap justify-content-around'>\n"
-    button_block += "\t\t\t<div class='d-flex'><a href='#all-tags'><button type='button' class='btn btn-outline-primary'>tags</button></a></div>\n"
-    if button_info[2] > 10:
-        button_block += "\t\t\t<div class='d-flex'><a href='#" + button_info[0] + "-by-date'><button type='button' class='btn btn-outline-primary'>" + button_info[0] + " by date</button></a></div>\n"
-        button_block += "\t\t\t<div class='d-flex'><a href='#" + button_info[0] + "-by-stars'><button type='button' class='btn btn-outline-primary'>" + button_info[0] + " by stars</button></a></div>\n"
-    button_block += "\t\t</div>\n"
-    return button_block
-
-
-def make_table(themes_info):
-    table = "\t<div class='container'>\n\t\t<table class='table monospace'>\n\t\t\t<thead><tr><th scope='col'>" + themes_info[1] + " (tag) " + themes_info[2] + "</th><th scope='col'>Date</th></tr></thead>\n\t\t\t<tbody>\n"
-    for theme in themes_info[0]:
-        name = theme[0].split('/')[1]
-        row = f"\t\t\t\t<tr><td scope='row'><a target='_blank' href='https://{theme[4]}'>{name}</a></td>"
-        row += "<td nowrap>" + theme[2][:10] + "</td>"
-        row += "<td align='right' nowrap style='padding-left:1em;'>" + str(theme[3]) + '&#x2605' + "</td>"
-        row += "<td align='right' style='padding-left:1em;'>" + theme[1][:6] + "</td></tr>\n"
-        table += row
-    table += "\t\t\t</tbody>\n\t\t</table>\n\t</div>\n"
-    return table
-
-
-def make_section(section_info):
-    if section_info[3] > 10:
-        section = make_nav_buttons((section_info[0], 'by-date', section_info[3]))
-        section += make_table((section_info[1], section_info[0], 'by-date'))
-        section += make_nav_buttons((section_info[0], 'by-stars', section_info[3]))
-        section += make_table((section_info[2], section_info[0], 'by-stars'))
-    else:
-        section = make_nav_buttons((section_info[0], 'by-date', section_info[3]))
-        section += make_table((section_info[1], section_info[0], 'by-date'))
-    return section
-
-
-def write_reports():
-    session = sessionmaker(bind=engine)()
-    u, v, w, x, y, z = Hugothemes.name, Hugothemes.commit_sha, Hugothemes.commit_date, Hugothemes.stargazers_count, Hugothemes.url, Hugothemes.commit_date_in_seconds
-    themes_bydate_list = [(vals) for (vals) in session.query(u, v, w, x, y).order_by(z.desc())]
-    themes_bystars_list = [(vals) for (vals) in session.query(u, v, w, x, y).order_by(x.desc())]
-    themes = [theme[0] for theme in themes_bystars_list]
-    tags_list = [('all', str(themes), len(themes))]
-    tags_list += [(vals) for (vals) in session.query(Tags.tag, Tags.theme_list, Tags.num_themes).filter(Tags.num_themes > 2).order_by(Tags.num_themes.desc())]
-
-    reportpage = "<!DOCTYPE html>\n<html lang='en'>\n"
-    reportpage += "\t<head>\n\t\t<title>Hugo Themes Report</title>\n\t\t<meta charset='utf-8'>"
-    reportpage += "\n\t\t<meta name='viewport' content='width=device-width, initial-scale=1'>\n"
-    reportpage += "\t\t<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css' "
-    reportpage += "integrity='sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm' crossorigin='anonymous'>\n\t</head>\n"
-    reportpage += "\t<body>\n"
-
-    reportpage += make_section(('all', themes_bydate_list, themes_bystars_list, len(themes_bydate_list)))
-    reportpage += make_buttons(tags_list)
-    for tag in tags_list[1:]:
-        tag_theme_list = literal_eval(tag[1])
-        bydate_list = [theme for theme in themes_bydate_list if theme[0] in tag_theme_list]
-        bystars_list = [theme for theme in themes_bystars_list if theme[0] in tag_theme_list]
-        reportpage += make_section((tag[0], bydate_list, bystars_list, tag[2]))
-
-    reportpage += "\t</body>"
-    reportpage += "\n</html>"
-    by_date = open('hugo-themes-report/hugo-themes-report.html', 'w')
-    by_date.write(reportpage)
-    by_date.close()
-
-
 def generate_report():
     session = sessionmaker(bind=engine)()
     hugo_themes = [
@@ -601,8 +461,8 @@ if __name__ == "__main__":
         parse_hugo_themes_list()
         parse_gitlab_hugo_themes_list()
         get_gitlab_project_ids()
-        get_stargazer_count_for_hugo_themes()
-        get_stargazer_count_for_hugo_themes_from_gitlab()
+        get_repo_info_for_hugo_themes()
+        get_repo_info_for_hugo_themes_from_gitlab()
         get_commit_info_for_hugo_themes()
         get_commit_info_for_hugo_themes_from_gitlab()
         get_theme_dot_toml_for_each_hugo_themes()
@@ -610,6 +470,4 @@ if __name__ == "__main__":
         coalesce_themes()
         update_tags_list_for_each_hugo_themes()
         update_features_list_for_each_hugo_themes()
-        update_tag_table()
-        # write_reports()
         generate_report()
