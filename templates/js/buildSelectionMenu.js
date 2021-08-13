@@ -4,52 +4,49 @@ function buildTagSelectionHeadingRow(selectionMenuDiv, tagSortBy) {
   tagSelectionHeadingRow.style.maxWidth = "100%";
   tagSelectionHeadingRow.style.display = "flex";
   tagSelectionHeadingRow.style.justifyContent = "space-around";
+  tagSelectionHeadingRow.style.alignItems = "center";
 
   let tagSelectionHeading = document.createElement("h2");
   tagSelectionHeading.innerHTML = "Select Tags";
 
-  let tagSortByNameInputDiv = document.createElement("div");
-  tagSortByNameInputDiv.style.display = "flex";
-  tagSortByNameInputDiv.style.alignItems = "center";
-  let tagSortByNameInput = document.createElement("input");
-  tagSortByNameInput.type = "radio";
-  tagSortByNameInput.id = "tagSortByName";
-  tagSortByNameInput.name = "tagSortBy";
-  tagSortByNameInput.value = "tagSortByName";
-  tagSortByNameInput.checked = tagSortBy === "name" ? true : false;
-  tagSortByNameInput.onclick = function () {
-    buildResults();
-  };
-  tagSortByNameInputDiv.appendChild(tagSortByNameInput);
+  let tagSortByNameInputButton = buildRadioButton(
+    (inputID = "tagSortByName"),
+    (inputName = "tagSortBy"),
+    (inputValue = "tagSortByName"),
+    (sortedBy = tagSortBy),
+    (sortedBySelector = "name"),
+    (labelText = "Name")
+  );
 
-  let tagSortByNameInputLabel = document.createElement("label");
-  tagSortByNameInputLabel.for = "tagSortByName";
-  tagSortByNameInputLabel.innerHTML = "Name";
-  tagSortByNameInputDiv.appendChild(tagSortByNameInputLabel);
-
-  let tagSortByNumThemesInputDiv = document.createElement("div");
-  tagSortByNumThemesInputDiv.style.display = "flex";
-  tagSortByNumThemesInputDiv.style.alignItems = "center";
-  let tagSortByNumThemesInput = document.createElement("input");
-  tagSortByNumThemesInput.type = "radio";
-  tagSortByNumThemesInput.id = "tagSortByNumThemes";
-  tagSortByNumThemesInput.name = "tagSortBy";
-  tagSortByNumThemesInput.value = "tagSortByNumThemes";
-  tagSortByNumThemesInput.checked = tagSortBy === "numThemes" ? true : false;
-  tagSortByNumThemesInput.onclick = function () {
-    buildResults();
-  };
-  tagSortByNumThemesInputDiv.appendChild(tagSortByNumThemesInput);
-
-  let tagSortByNumThemesInputLabel = document.createElement("label");
-  tagSortByNumThemesInputLabel.for = "tagSortByNumThemes";
-  tagSortByNumThemesInputLabel.innerHTML = "numThemes";
-  tagSortByNumThemesInputDiv.appendChild(tagSortByNumThemesInputLabel);
+  let tagSortByNumThemesInputButton = buildRadioButton(
+    (inputID = "tagSortByNumThemes"),
+    (inputName = "tagSortBy"),
+    (inputValue = "tagSortByNumThemes"),
+    (sortedBy = tagSortBy),
+    (sortedBySelector = "numThemes"),
+    (labelText = "nThemes")
+  );
 
   tagSelectionHeadingRow.appendChild(tagSelectionHeading);
-  tagSelectionHeadingRow.appendChild(tagSortByNameInputDiv);
-  tagSelectionHeadingRow.appendChild(tagSortByNumThemesInputDiv);
+  tagSelectionHeadingRow.appendChild(tagSortByNameInputButton);
+  tagSelectionHeadingRow.appendChild(tagSortByNumThemesInputButton);
   selectionMenuDiv.appendChild(tagSelectionHeadingRow);
+
+  let tagSortByNameInput = document.getElementById("tagSortByName");
+  tagSortByNameInputButton.onclick = function () {
+    if (!tagSortByNameInput.checked) {
+      tagSortByNameInput.checked = true;
+      buildResults();
+    }
+  };
+
+  let tagSortByNumThemesInput = document.getElementById("tagSortByNumThemes");
+  tagSortByNumThemesInputButton.onclick = function () {
+    if (!tagSortByNumThemesInput.checked) {
+      tagSortByNumThemesInput.checked = true;
+      buildResults();
+    }
+  };
 }
 
 function buildFeatureSelectionHeadingRow(selectionMenuDiv, featureSortBy) {
@@ -58,53 +55,51 @@ function buildFeatureSelectionHeadingRow(selectionMenuDiv, featureSortBy) {
   featureSelectionHeadingRow.style.maxWidth = "100%";
   featureSelectionHeadingRow.style.display = "flex";
   featureSelectionHeadingRow.style.justifyContent = "space-around";
+  featureSelectionHeadingRow.style.alignItems = "center";
 
   let featureSelectionHeading = document.createElement("h2");
   featureSelectionHeading.innerHTML = "Select Features";
 
-  let featureSortByNameInputDiv = document.createElement("div");
-  featureSortByNameInputDiv.style.display = "flex";
-  featureSortByNameInputDiv.style.alignItems = "center";
-  let featureSortByNameInput = document.createElement("input");
-  featureSortByNameInput.type = "radio";
-  featureSortByNameInput.id = "featureSortByName";
-  featureSortByNameInput.name = "featureSortBy";
-  featureSortByNameInput.value = "featureSortByName";
-  featureSortByNameInput.checked = featureSortBy === "name" ? true : false;
-  featureSortByNameInput.onclick = function () {
-    buildResults();
-  };
-  featureSortByNameInputDiv.appendChild(featureSortByNameInput);
+  let featureSortByNameInputButton = buildRadioButton(
+    (inputID = "featureSortByName"),
+    (inputName = "featureSortBy"),
+    (inputValue = "featureSortByName"),
+    (sortedBy = featureSortBy),
+    (sortedBySelector = "name"),
+    (labelText = "Name")
+  );
 
-  let featureSortByNameInputLabel = document.createElement("label");
-  featureSortByNameInputLabel.for = "featureSortByName";
-  featureSortByNameInputLabel.innerHTML = "Name";
-  featureSortByNameInputDiv.appendChild(featureSortByNameInputLabel);
-
-  let featureSortByNumThemesInputDiv = document.createElement("div");
-  featureSortByNumThemesInputDiv.style.display = "flex";
-  featureSortByNumThemesInputDiv.style.alignItems = "center";
-  let featureSortByNumThemesInput = document.createElement("input");
-  featureSortByNumThemesInput.type = "radio";
-  featureSortByNumThemesInput.id = "featureSortByNumThemes";
-  featureSortByNumThemesInput.name = "featureSortBy";
-  featureSortByNumThemesInput.value = "featureSortByNumThemes";
-  featureSortByNumThemesInput.checked =
-    featureSortBy === "numThemes" ? true : false;
-  featureSortByNumThemesInput.onclick = function () {
-    buildResults();
-  };
-  featureSortByNumThemesInputDiv.appendChild(featureSortByNumThemesInput);
-
-  let featureSortByNumThemesInputLabel = document.createElement("label");
-  featureSortByNumThemesInputLabel.for = "featureSortByNumThemes";
-  featureSortByNumThemesInputLabel.innerHTML = "numThemes";
-  featureSortByNumThemesInputDiv.appendChild(featureSortByNumThemesInputLabel);
+  let featureSortByNumThemesInputButton = buildRadioButton(
+    (inputID = "featureSortByNumThemes"),
+    (inputName = "featureSortBy"),
+    (inputValue = "featureSortByNumThemes"),
+    (sortedBy = featureSortBy),
+    (sortedBySelector = "numThemes"),
+    (labelText = "nThemes")
+  );
 
   featureSelectionHeadingRow.appendChild(featureSelectionHeading);
-  featureSelectionHeadingRow.appendChild(featureSortByNameInputDiv);
-  featureSelectionHeadingRow.appendChild(featureSortByNumThemesInputDiv);
+  featureSelectionHeadingRow.appendChild(featureSortByNameInputButton);
+  featureSelectionHeadingRow.appendChild(featureSortByNumThemesInputButton);
   selectionMenuDiv.appendChild(featureSelectionHeadingRow);
+
+  let featureSortByNameInput = document.getElementById("featureSortByName");
+  featureSortByNameInputButton.onclick = function () {
+    if (!featureSortByNameInput.checked) {
+      featureSortByNameInput.checked = true;
+      buildResults();
+    }
+  };
+
+  let featureSortByNumThemesInput = document.getElementById(
+    "featureSortByNumThemes"
+  );
+  featureSortByNumThemesInputButton.onclick = function () {
+    if (!featureSortByNumThemesInput.checked) {
+      featureSortByNumThemesInput.checked = true;
+      buildResults();
+    }
+  };
 }
 
 function buildTagSelectionDiv(selectedTags, availableTags, tagSortBy) {

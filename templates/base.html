@@ -4,7 +4,9 @@
     <title>>Hugo Themes Report</title>
     <meta charset='utf-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <style>{% include 'css/main.css' %}</style>
+    <style>
+{% include 'css/main.css' %}
+    </style>
   </head>
   <body>
     <h1 id="title">
@@ -15,15 +17,16 @@
     </div>
     <div id="results">
     </div>
-  <script>
-    var themes = {{ themes }};
-    {% include 'js/selectionMenuCollapse.js' %}
-    {% include 'js/buildTagAndFeatureSelectionInputs.js' %}
-    {% include 'js/getAvailableTagsAndFeatures.js' %}
-    {% include 'js/buildSortByDiv.js' %}
-    {% include 'js/buildSelectionMenu.js' %}
-    {% include 'js/buildThemeTableRow.js' %}
-    {% include 'js/buildPage.js' %}
-  </script>
+    <script>
+var themes = {{ themes }};
+{% include 'js/selectionMenuCollapse.js' %}
+{% include 'js/buildButton.js' %}
+{% include 'js/buildTagAndFeatureSelectionInputs.js' %}
+{% include 'js/getAvailableTagsAndFeatures.js' %}
+{% include 'js/buildSortByDiv.js' %}
+{% include 'js/buildSelectionMenu.js' %}
+{% include 'js/buildThemeTableRow.js' %}
+{% include 'js/buildPage.js' %}
+    </script>
   </body>
 </html>
