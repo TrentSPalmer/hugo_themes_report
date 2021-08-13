@@ -57,6 +57,10 @@ class Hugothemes(Base):
     default_branch = Column(TEXT)
     features_list = Column(TEXT)
     num_features = Column(Integer)
+    theme_license = Column(TEXT)
+    min_ver = Column(TEXT)
+    desc = Column(TEXT)
+    cname = Column(TEXT)
 
     def __repr__(self):
         return f"<Hugothemes(name={self.name})>"
@@ -353,35 +357,6 @@ def coalesce_themes():
         session.commit()
 
 
-def update_features_list_for_each_hugo_themes():
-    session = sessionmaker(bind=engine)()
-    themes = [theme[0] for theme in session.query(Hugothemes.name).all()]
-    match = re.compile(r'\s(\d+\.\d+\.\d+)\s')
-    for hugo_theme in themes:
-        theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
-        if theme.themes_toml_content is not None:
-            content = b64decode(theme.themes_toml_content).decode('utf-8')
-            theme_toml = toml.loads(match.sub(r'"\1"\n', content))
-            if 'features' in theme_toml:
-                if len(theme_toml['features']) > 0:
-                    theme_features = [feature.lower() for feature in theme_toml['features'] if len(feature) > 1]
-                    if theme.num_features != len(theme_features): theme.num_features = len(theme_features)
-                    if theme.num_features > 0:
-                        if theme.features_list != str(theme_features): theme.features_list = str(theme_features)
-                    else:
-                        if theme.features_list is not None: theme.features_list = None
-                else:
-                    if theme.features_list is not None: theme.features_list = None
-                    if theme.num_features != 0: theme.num_features = 0
-            else:
-                if theme.features_list is not None: theme.features_list = None
-                if theme.num_features != 0: theme.num_features = 0
-        else:
-            if theme.features_list is not None: theme.features_list = None
-            if theme.num_features != 0: theme.num_features = 0
-        session.commit()
-
-
 def get_corrected_tags(tags):
     result = []
     correct = True
@@ -395,7 +370,7 @@ def get_corrected_tags(tags):
         return tags
 
 
-def update_tags_list_for_each_hugo_themes():
+def parse_themes_toml_for_each_hugo_themes():
     session = sessionmaker(bind=engine)()
     themes = [theme[0] for theme in session.query(Hugothemes.name).all()]
     match = re.compile(r'\s(\d+\.\d+\.\d+)\s')
@@ -422,9 +397,50 @@ def update_tags_list_for_each_hugo_themes():
             else:
                 if theme.tags_list is not None: theme.tags_list = None
                 if theme.num_tags != 0: theme.num_tags = 0
+            if 'features' in theme_toml:
+                if len(theme_toml['features']) > 0:
+                    theme_features = [feature.lower() for feature in theme_toml['features'] if len(feature) > 1]
+                    if theme.num_features != len(theme_features): theme.num_features = len(theme_features)
+                    if theme.num_features > 0:
+                        if theme.features_list != str(theme_features): theme.features_list = str(theme_features)
+                    else:
+                        if theme.features_list is not None: theme.features_list = None
+                else:
+                    if theme.features_list is not None: theme.features_list = None
+                    if theme.num_features != 0: theme.num_features = 0
+            else:
+                if theme.features_list is not None: theme.features_list = None
+                if theme.num_features != 0: theme.num_features = 0
+            if 'license' in theme_toml:
+                if theme.theme_license != theme_toml['license']:
+                    theme.theme_license = theme_toml['license']
+            else:
+                if theme.theme_license is not None: theme.theme_license = None
+            if 'min_version' in theme_toml:
+                if theme.min_ver != theme_toml['min_version']:
+                    theme.min_ver = theme_toml['min_version']
+            else:
+                if theme.min_ver is not None: theme.min_ver = None
+            if 'description' in theme_toml:
+                if theme.desc != theme_toml['description']:
+                    theme.desc = theme_toml['description']
+            else:
+                if theme.desc is not None: theme.desc = None
+            if 'name' in theme_toml:
+                print(len(theme_toml['name']), theme_toml['name'])
+                if theme.cname != theme_toml['name']:
+                    theme.cname = theme_toml['name']
+            else:
+                if theme.cname is not None: theme.cname = None
         else:
             if theme.tags_list is not None: theme.tags_list = None
             if theme.num_tags != 0: theme.num_tags = 0
+            if theme.features_list is not None: theme.features_list = None
+            if theme.num_features != 0: theme.num_features = 0
+            if theme.license is not None: theme.license = None
+            if theme.min_ver is not None: theme.min_ver = None
+            if theme.desc is not None: theme.desc = None
+            if theme.cname is not None: theme.cname = None
         session.commit()
 
 
@@ -441,6 +457,10 @@ def generate_report():
             'num_stars': theme.stargazers_count,
             'tags': literal_eval(theme.tags_list) if theme.tags_list is not None else [],
             'features': literal_eval(theme.features_list) if theme.features_list is not None else [],
+            'license': theme.theme_license if theme.theme_license is not None else '',
+            'min_ver': theme.min_ver if theme.min_ver is not None else '',
+            'desc': theme.desc if theme.desc is not None else '',
+            'cname': theme.cname if theme.cname is not None else theme.name.split('/')[1],
         } for theme in session.query(Hugothemes).all()
     ]
     output = template.render(themes=hugo_themes)
@@ -451,8 +471,7 @@ def generate_report():
 
 if __name__ == "__main__":
     '''
-    update_tags_list_for_each_hugo_themes()
-    update_features_list_for_each_hugo_themes()
+    parse_themes_toml_for_each_hugo_themes()
     generate_report()
     '''
     get_hugo_themes_list()
@@ -468,6 +487,5 @@ if __name__ == "__main__":
         get_theme_dot_toml_for_each_hugo_themes()
         get_theme_dot_toml_for_each_hugo_themes_from_gitlab()
         coalesce_themes()
-        update_tags_list_for_each_hugo_themes()
-        update_features_list_for_each_hugo_themes()
+        parse_themes_toml_for_each_hugo_themes()
         generate_report()
