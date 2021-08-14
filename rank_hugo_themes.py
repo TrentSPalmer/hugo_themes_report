@@ -470,8 +470,10 @@ def generate_report():
 
 if __name__ == "__main__":
     '''
-    parse_themes_toml_for_each_hugo_themes()
-    generate_report()
+    or test with
+    `
+    python -c'import rank_hugo_themes; rank_hugo_themes.parse_themes_toml_for_each_hugo_themes() ; rank_hugo_themes.generate_report()''
+    `
     '''
     get_hugo_themes_list()
     if len(THEMESLIST) > 300:

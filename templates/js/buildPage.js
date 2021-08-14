@@ -96,21 +96,23 @@ function buildResults() {
   resultsDiv.appendChild(resultsTable);
   resultsTable.appendChild(resultsTableHeadRow);
 
-  let themeTH = document.createElement("th");
-  themeTH.innerHTML = "theme";
-  resultsTableHeadRow.appendChild(themeTH);
+  let tableHeadingVals = [
+    {'headingName': 'cname', 'headingText': 'theme'},
+    {'headingName': 'date', 'headingText': 'date'},
+    {'headingName': 'num_stars', 'headingText': 'stars'},
+    {'headingName': 'commit', 'headingText': 'commit'},
+    {'headingName': 'min_ver', 'headingText': 'minVer'},
+    {'headingName': 'license', 'headingText': 'license'},
+    {'headingName': 'desc', 'headingText': 'desc'},
+    {'headingName': 'tags', 'headingText': 'tags'},
+    {'headingName': 'features', 'headingText': 'features'},
+  ];
 
-  let dateTH = document.createElement("th");
-  dateTH.innerHTML = "date";
-  resultsTableHeadRow.appendChild(dateTH);
-
-  let starsTH = document.createElement("th");
-  starsTH.innerHTML = "stars";
-  resultsTableHeadRow.appendChild(starsTH);
-
-  let commitTH = document.createElement("th");
-  commitTH.innerHTML = "commit";
-  resultsTableHeadRow.appendChild(commitTH);
+  tableHeadingVals.forEach((x) => {
+    let xTH = document.createElement("th");
+    xTH.innerHTML = x.headingText;
+    resultsTableHeadRow.appendChild(xTH);
+  });
 
   let selectedTags = getSelectedTags();
   let selectedFeatures = getSelectedFeatures();
