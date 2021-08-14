@@ -1,7 +1,7 @@
 function buildTagSelectionInput(tag, selected, tagSelectionRow) {
   let tagSelectionInputButton = document.createElement("button");
-  tagSelectionInputButton.style.width = "15rem";
-  tagSelectionInputButton.style.maxWidth = "50%";
+  tagSelectionInputButton.style.width = "12rem";
+  tagSelectionInputButton.style.maxWidth = "calc(50% - 2rem)";
   tagSelectionInputButton.style.margin = ".5rem";
   tagSelectionInputButton.style.display = "flex";
   tagSelectionInputButton.style.alignItems = "center";
@@ -34,8 +34,8 @@ function buildTagSelectionInput(tag, selected, tagSelectionRow) {
 
 function buildFeatureSelectionInput(feature, selected, featureSelectionRow) {
   let featureSelectionInputButton = document.createElement("button");
-  featureSelectionInputButton.style.width = "30rem";
-  featureSelectionInputButton.style.maxWidth = "50%";
+  featureSelectionInputButton.style.width = "15rem";
+  featureSelectionInputButton.style.maxWidth = "calc(50% - 2rem)";
   featureSelectionInputButton.style.margin = ".5rem";
   featureSelectionInputButton.style.display = "flex";
   featureSelectionInputButton.style.alignItems = "center";

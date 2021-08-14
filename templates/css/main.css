@@ -5,47 +5,39 @@ body {
   margin: 0 auto 0 auto;
 }
 
-#selection-menu {
-  display: none;
-}
-
 #title {
   text-align: center;
+  max-width: calc(100vw - 4rem);
 }
 
-.collapsible {
-  background-color: #eee;
-  color: #444;
-  cursor: pointer;
-  padding: 1.1rem;
-  width: 100%;
-  border: none;
-  text-align: left;
-  outline: none;
-  font-size: 1.1rem;
-}
-
-.active, .collapsible:hover {
-  background-color: #ccc;
-}
-
-.content {
-  padding: 0 1.1rem;
+#minus-button {
   display: none;
-  overflow: hidden;
-  background-color: #f1f1f1;
 }
 
-.collapsible:after {
-  content: '\02795';
-  font-size: .8rem;
-  color: white;
-  float: right;
-  margin-left: .4rem;
+#selection-options-menu {
+  flex-wrap: wrap;
+  justify-content: space-around;
 }
 
-.active:after {
-  content: '\2796';
+#selection-options-menu button{
+  height: 2rem;
+  margin-bottom: 1rem;
+  margin-left: .5rem;
+  margin-right: .5rem;
+}
+
+#plus-button, #minus-button {
+  height: 3rem;
+  width: 3rem;
+  background-color: #ccc;
+  color: #444;
+  font-size: 2rem;
+  font-weight: bolder;
+  border: none;
+  border-radius: .2rem;
+  position: fixed;
+  top: 1rem;
+  right: calc(max(0px, calc(calc(100vw - 1200px) / 2)) + .5rem);
 }
 
 #resultsTable {
@@ -74,5 +66,5 @@ body {
 td, th {
   padding-left: 1rem;
   padding-right: 1rem;
-  text-align: center;
+  text-align: left;
 }

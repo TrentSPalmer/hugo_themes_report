@@ -11,6 +11,7 @@ function buildRadioButton(
   result.style.display = "flex";
   result.style.alignItems = "center";
   result.style.height = "2rem";
+  result.style.margin = ".5rem";
 
   let inputAttsA = `id=${inputID} type="radio" name=${inputName} value=${inputValue}`;
   let inputAttsB = `onclick="buildResults()" style="margin:0 1rem 0 0"`;

@@ -1,8 +1,8 @@
-function buildTagSelectionHeadingRow(selectionMenuDiv, tagSortBy) {
+function buildTagSelectionHeadingRow(selectionMenuDiv, tagSortBy, dState) {
   let tagSelectionHeadingRow = document.createElement("div");
   tagSelectionHeadingRow.id = "tagSelectionHeadingRow";
   tagSelectionHeadingRow.style.maxWidth = "100%";
-  tagSelectionHeadingRow.style.display = "flex";
+  tagSelectionHeadingRow.style.display = dState.tagSelectionHeadingRow;
   tagSelectionHeadingRow.style.justifyContent = "space-around";
   tagSelectionHeadingRow.style.alignItems = "center";
 
@@ -49,11 +49,15 @@ function buildTagSelectionHeadingRow(selectionMenuDiv, tagSortBy) {
   };
 }
 
-function buildFeatureSelectionHeadingRow(selectionMenuDiv, featureSortBy) {
+function buildFeatureSelectionHeadingRow(
+  selectionMenuDiv,
+  featureSortBy,
+  dState
+) {
   let featureSelectionHeadingRow = document.createElement("div");
   featureSelectionHeadingRow.id = "featureSelectionHeadingRow";
   featureSelectionHeadingRow.style.maxWidth = "100%";
-  featureSelectionHeadingRow.style.display = "flex";
+  featureSelectionHeadingRow.style.display = dState.featureSelectionHeadingRow;
   featureSelectionHeadingRow.style.justifyContent = "space-around";
   featureSelectionHeadingRow.style.alignItems = "center";
 
@@ -102,12 +106,13 @@ function buildFeatureSelectionHeadingRow(selectionMenuDiv, featureSortBy) {
   };
 }
 
-function buildTagSelectionDiv(selectedTags, availableTags, tagSortBy) {
+function buildTagSelectionDiv(selectedTags, availableTags, tagSortBy, dState) {
   let selectionMenuDiv = document.getElementById("selection-menu");
-  buildTagSelectionHeadingRow(selectionMenuDiv, tagSortBy);
+  buildTagSelectionHeadingRow(selectionMenuDiv, tagSortBy, dState);
 
   let tagSelectionRow = document.createElement("div");
-  tagSelectionRow.style.display = "flex";
+  tagSelectionRow.id = "tagSelectionRow";
+  tagSelectionRow.style.display = dState.tagSelectionRow;
   tagSelectionRow.style.flexWrap = "wrap";
   tagSelectionRow.style.justifyContent = "space-around";
 
@@ -129,13 +134,15 @@ function buildTagSelectionDiv(selectedTags, availableTags, tagSortBy) {
 function buildFeatureSelectionDiv(
   selectedFeatures,
   availableFeatures,
-  featureSortBy
+  featureSortBy,
+  dState
 ) {
   let selectionMenuDiv = document.getElementById("selection-menu");
-  buildFeatureSelectionHeadingRow(selectionMenuDiv, featureSortBy);
+  buildFeatureSelectionHeadingRow(selectionMenuDiv, featureSortBy, dState);
 
   let featureSelectionRow = document.createElement("div");
-  featureSelectionRow.style.display = "flex";
+  featureSelectionRow.id = "featureSelectionRow";
+  featureSelectionRow.style.display = dState.featureSelectionRow;
   featureSelectionRow.style.flexWrap = "wrap";
   featureSelectionRow.style.justifyContent = "space-around";
 
@@ -158,13 +165,19 @@ function buildSelectionMenu(
   sorted_themes,
   sortedBy,
   selectedTags,
-  selectedFeatures
+  selectedFeatures,
+  dState
 ) {
   let tagSortBy = getTagSortBy();
   let featureSortBy = getFeatureSortBy();
   let availableTags = getAvailableTags(sorted_themes, tagSortBy);
   let availableFeatures = getAvailableFeatures(sorted_themes, featureSortBy);
-  buildSortByDiv(sortedBy);
-  buildTagSelectionDiv(selectedTags, availableTags, tagSortBy);
-  buildFeatureSelectionDiv(selectedFeatures, availableFeatures, featureSortBy);
+  buildSortByDiv(sortedBy, dState.sortByRow);
+  buildTagSelectionDiv(selectedTags, availableTags, tagSortBy, dState);
+  buildFeatureSelectionDiv(
+    selectedFeatures,
+    availableFeatures,
+    featureSortBy,
+    dState
+  );
 }

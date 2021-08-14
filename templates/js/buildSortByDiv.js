@@ -1,4 +1,4 @@
-function buildSortByDiv(sortedBy) {
+function buildSortByDiv(sortedBy, sortByRowDisplay) {
   let menuDiv = document.getElementById("selection-menu");
   menuDiv.innerHTML = "";
   menuDiv.style.maxWidth = "100%";
@@ -7,7 +7,7 @@ function buildSortByDiv(sortedBy) {
   sortByRow.id = "sortByRow";
   sortByRow.style.width = "500px";
   sortByRow.style.maxWidth = "100%";
-  sortByRow.style.display = "flex";
+  sortByRow.style.display = sortByRowDisplay;
   sortByRow.style.justifyContent = "space-around";
   sortByRow.style.margin = "1rem auto 1rem auto";
 

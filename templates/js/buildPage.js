@@ -67,6 +67,23 @@ function getFilteredThemes(selectedTags, selectedFeatures) {
   }
 }
 
+function getDState(x) {
+  let e = document.getElementById(x);
+  return e !== null ? e.style.display : "none";
+}
+
+function getDiplayState() {
+  let dState = {};
+  [
+    "sortByRow",
+    "tagSelectionHeadingRow",
+    "tagSelectionRow",
+    "featureSelectionHeadingRow",
+    "featureSelectionRow",
+  ].forEach((x) => (dState[x] = getDState(x)));
+  return dState;
+}
+
 function buildResults() {
   let resultsDiv = document.getElementById("results");
   resultsDiv.innerHTML = "";
@@ -102,7 +119,13 @@ function buildResults() {
   let sorted_themes = getSortedThemes(filtered_themes, sortedBy);
   sorted_themes.forEach((theme) => addThemeTableRow(theme));
 
-  buildSelectionMenu(sorted_themes, sortedBy, selectedTags, selectedFeatures);
+  buildSelectionMenu(
+    sorted_themes,
+    sortedBy,
+    selectedTags,
+    selectedFeatures,
+    getDiplayState()
+  );
 }
 
 buildResults();

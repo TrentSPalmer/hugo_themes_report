@@ -427,7 +427,6 @@ def parse_themes_toml_for_each_hugo_themes():
             else:
                 if theme.desc is not None: theme.desc = None
             if 'name' in theme_toml:
-                print(len(theme_toml['name']), theme_toml['name'])
                 if theme.cname != theme_toml['name']:
                     theme.cname = theme_toml['name']
             else:

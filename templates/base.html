@@ -12,14 +12,21 @@
     <h1 id="title">
       <a href="https://github.com/TrentSPalmer/hugo_themes_report" target="_blank">Hugo Themes Report</a>
     </h1>
-    <button type="button" id="selection-button" class="collapsible">Select Tags/Features</button>
+    <button type="button" id="plus-button">&plus;</button>
+    <button type="button" id="minus-button">&minus;</button>
+    <div id="selection-options-menu" style="display: none">
+      <button type="button" id="button-for-showing-sort-option">SortBy</button>
+      <button type="button" id="button-for-showing-columns">Show Columns</button>
+      <button type="button" id="button-for-filter-by-tags">Filter By Tags</button>
+      <button type="button" id="button-for-filter-by-features">Filter By Features</button>
+      <button type="button" id="button-for-filter-by-tags-and-features">Filter By Tags &amp; Features</button>
+    </div>
     <div id="selection-menu">
     </div>
     <div id="results">
     </div>
     <script>
 var themes = {{ themes }};
-{% include 'js/selectionMenuCollapse.js' %}
 {% include 'js/buildButton.js' %}
 {% include 'js/buildTagAndFeatureSelectionInputs.js' %}
 {% include 'js/getAvailableTagsAndFeatures.js' %}
@@ -27,6 +34,7 @@ var themes = {{ themes }};
 {% include 'js/buildSelectionMenu.js' %}
 {% include 'js/buildThemeTableRow.js' %}
 {% include 'js/buildPage.js' %}
+{% include 'js/selectionMenuCollapse.js' %}
     </script>
   </body>
 </html>
