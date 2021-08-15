@@ -21,16 +21,18 @@
       <button type="button" id="button-for-filter-by-features">Filter By Features</button>
       <button type="button" id="button-for-filter-by-tags-and-features">Filter By Tags &amp; Features</button>
     </div>
-    <div id="selection-menu">
+    <div id="selection-menu" style="margin-bottom: 1rem;">
     </div>
     <div id="results">
     </div>
     <script>
 var themes = {{ themes }};
 {% include 'js/buildButton.js' %}
-{% include 'js/buildTagAndFeatureSelectionInputs.js' %}
+{% include 'js/buildSelectionInputs.js' %}
 {% include 'js/getAvailableTagsAndFeatures.js' %}
 {% include 'js/buildSortByDiv.js' %}
+{% include 'js/buildTagAndFeatureSelectionHeadingRows.js' %}
+{% include 'js/buildTagAndFeatureSelectionDivs.js' %}
 {% include 'js/buildSelectionMenu.js' %}
 {% include 'js/buildThemeTableRow.js' %}
 {% include 'js/buildPage.js' %}

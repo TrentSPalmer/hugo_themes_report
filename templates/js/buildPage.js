@@ -7,26 +7,6 @@ function getSortBy() {
   }
 }
 
-function getTagSortBy() {
-  let tagSortByNumThemes = document.getElementById("tagSortByNumThemes");
-  if (tagSortByNumThemes === null) {
-    return "numThemes";
-  } else {
-    return tagSortByNumThemes.checked ? "numThemes" : "name";
-  }
-}
-
-function getFeatureSortBy() {
-  let featureSortByNumThemes = document.getElementById(
-    "featureSortByNumThemes"
-  );
-  if (featureSortByNumThemes === null) {
-    return "numThemes";
-  } else {
-    return featureSortByNumThemes.checked ? "numThemes" : "name";
-  }
-}
-
 function getSortedThemes(themeList, sortedBy) {
   if (sortedBy === "date") {
     return themeList.sort((a, b) => b.date_in_seconds - a.date_in_seconds);
@@ -41,6 +21,22 @@ function getSelectedTags() {
     return [...tagSelectionInputs].filter((x) => x.checked).map((y) => y.value);
   } else {
     return [];
+  }
+}
+
+function getSelectedColumns() {
+  let columnSelectionInputs = document.getElementsByClassName(
+    "columnSelectionInput"
+  );
+  if (columnSelectionInputs.length > 0) {
+    let checked = [...columnSelectionInputs].filter((x) => x.checked);
+    if (checked.length > 0) {
+      return checked.map((y) => y.id.slice(0, -23));
+    } else {
+      return ["cname", "date", "num_stars", "commit"];
+    }
+  } else {
+    return ["cname", "date", "num_stars", "commit"];
   }
 }
 
@@ -76,6 +72,8 @@ function getDiplayState() {
   let dState = {};
   [
     "sortByRow",
+    "columnSelectionHeadingRow",
+    "columnSelectionRow",
     "tagSelectionHeadingRow",
     "tagSelectionRow",
     "featureSelectionHeadingRow",
@@ -83,6 +81,18 @@ function getDiplayState() {
   ].forEach((x) => (dState[x] = getDState(x)));
   return dState;
 }
+
+let tableColumns = [
+  { headingName: "cname", headingText: "theme" },
+  { headingName: "date", headingText: "date" },
+  { headingName: "num_stars", headingText: "stars" },
+  { headingName: "commit", headingText: "commit" },
+  { headingName: "min_ver", headingText: "minVer" },
+  { headingName: "license", headingText: "license" },
+  { headingName: "desc", headingText: "desc" },
+  { headingName: "tags", headingText: "tags" },
+  { headingName: "features", headingText: "features" },
+];
 
 function buildResults() {
   let resultsDiv = document.getElementById("results");
@@ -95,38 +105,31 @@ function buildResults() {
   let resultsTableHeadRow = document.createElement("tr");
   resultsDiv.appendChild(resultsTable);
   resultsTable.appendChild(resultsTableHeadRow);
+  let selectedColumns = getSelectedColumns();
 
-  let tableHeadingVals = [
-    {'headingName': 'cname', 'headingText': 'theme'},
-    {'headingName': 'date', 'headingText': 'date'},
-    {'headingName': 'num_stars', 'headingText': 'stars'},
-    {'headingName': 'commit', 'headingText': 'commit'},
-    {'headingName': 'min_ver', 'headingText': 'minVer'},
-    {'headingName': 'license', 'headingText': 'license'},
-    {'headingName': 'desc', 'headingText': 'desc'},
-    {'headingName': 'tags', 'headingText': 'tags'},
-    {'headingName': 'features', 'headingText': 'features'},
-  ];
-
-  tableHeadingVals.forEach((x) => {
-    let xTH = document.createElement("th");
-    xTH.innerHTML = x.headingText;
-    resultsTableHeadRow.appendChild(xTH);
-  });
+  tableColumns
+    .filter((y) => selectedColumns.includes(y.headingName))
+    .forEach((x) => {
+      let xTH = document.createElement("th");
+      xTH.innerHTML = x.headingText;
+      resultsTableHeadRow.appendChild(xTH);
+    });
 
   let selectedTags = getSelectedTags();
   let selectedFeatures = getSelectedFeatures();
   let sortedBy = getSortBy();
   let filtered_themes = getFilteredThemes(selectedTags, selectedFeatures);
   let sorted_themes = getSortedThemes(filtered_themes, sortedBy);
-  sorted_themes.forEach((theme) => addThemeTableRow(theme));
+  sorted_themes.forEach((theme) => addThemeTableRow(theme, selectedColumns));
 
+  // from buildSelectionMenu.js
   buildSelectionMenu(
-    sorted_themes,
-    sortedBy,
-    selectedTags,
-    selectedFeatures,
-    getDiplayState()
+    (sorted_themes = sorted_themes),
+    (sortedBy = sortedBy),
+    (selectedTags = selectedTags),
+    (selectedFeatures = selectedFeatures),
+    (selectedColumns = selectedColumns),
+    (dState = getDiplayState())
   );
 }
 

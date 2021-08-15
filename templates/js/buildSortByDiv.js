@@ -1,3 +1,4 @@
+// called from buildSelectionMenu.js
 function buildSortByDiv(sortedBy, sortByRowDisplay) {
   let menuDiv = document.getElementById("selection-menu");
   menuDiv.innerHTML = "";

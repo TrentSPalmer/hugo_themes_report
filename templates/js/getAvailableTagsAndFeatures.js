@@ -1,3 +1,4 @@
+// called from buildSelectionMenu.js
 function getAvailableFeatures(sorted_themes, featureSortBy) {
   let result = [];
   sorted_themes.forEach((x) => {
@@ -27,6 +28,7 @@ function getAvailableFeatures(sorted_themes, featureSortBy) {
   }
 }
 
+// called from buildSelectionMenu.js
 function getAvailableTags(sorted_themes, tagSortBy) {
   let result = [];
   sorted_themes.forEach((x) => {
