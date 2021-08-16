@@ -98,9 +98,12 @@ def get_hugo_themes_list():
     response = get(themes_list_url)
 
     if response.status_code == 200:
+        lower_case_themes_list = []
         for x in response.text.splitlines():
             if (x[0:10] == 'gitlab.com' or x[0:10] == 'github.com'):
-                THEMESLIST.append(x)
+                if x.lower() not in lower_case_themes_list:
+                    THEMESLIST.append(x)
+                    lower_case_themes_list.append(x.lower())
 
     print(response.status_code, get_hugo_themes_list.__name__)
 
@@ -122,6 +125,23 @@ def clean_up():
             removed_theme = session.query(Hugothemes_from_gitlab).filter_by(name=theme).first()
             session.delete(removed_theme)
             session.commit()
+
+
+def dedup_database():
+    session = sessionmaker(bind=engine)()
+    hugo_themes_sha_list = [theme[0] for theme in session.query(Hugothemes.commit_sha).all()]
+    sha_list = [sha for sha in hugo_themes_sha_list if hugo_themes_sha_list.count(sha) > 1]
+    for sha in sha_list:
+        removed_theme = session.query(Hugothemes).filter_by(commit_sha=sha).first()
+        session.delete(removed_theme)
+        session.commit()
+
+    hugo_themes_sha_list_from_gitlab = [theme[0] for theme in session.query(Hugothemes_from_gitlab.commit_sha).all()]
+    sha_list_from_gitlab = [sha for sha in hugo_themes_sha_list_from_gitlab if hugo_themes_sha_list_from_gitlab.count(sha) > 1]
+    for sha in sha_list_from_gitlab:
+        removed_theme = session.query(Hugothemes_from_gitlab).filter_by(commit_sha=sha).first()
+        session.delete(removed_theme)
+        session.commit()
 
 
 def parse_gitlab_hugo_themes_list():
@@ -475,6 +495,7 @@ if __name__ == "__main__":
     python3 -c'import rank_hugo_themes; rank_hugo_themes.parse_themes_toml_for_each_hugo_themes() ; rank_hugo_themes.generate_report()'
     `
     '''
+    dedup_database()
     get_hugo_themes_list()
     if len(THEMESLIST) > 300:
         clean_up()
