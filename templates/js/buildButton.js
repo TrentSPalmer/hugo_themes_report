@@ -14,7 +14,7 @@ function buildRadioButton(
   result.style.margin = ".5rem";
 
   let inputAttsA = `id=${inputID} type="radio" name=${inputName} value=${inputValue}`;
-  let inputAttsB = `onclick="buildResults()" style="margin:0 1rem 0 0"`;
+  let inputAttsB = `onclick="buildResults()" style="margin:0 1rem 0 0" class=${inputName}`;
   let inputAttsC = sortedBy === sortedBySelector ? " checked" : "";
   let resultButtonInput = `<input ${inputAttsA} ${inputAttsB} ${inputAttsC}/>`;
 

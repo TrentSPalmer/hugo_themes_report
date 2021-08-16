@@ -1,17 +1,12 @@
 function getSortBy() {
-  let sortByLastCommitInput = document.getElementById("sortByDate");
-  if (sortByLastCommitInput === null) {
-    return "date";
+  let a = document.getElementsByClassName("sortBy");
+  if (a.length > 0) {
+    return [
+      ...[...a].filter((y) => y.checked).map((x) => x.value),
+      ...[...a].filter((y) => !y.checked).map((x) => x.value),
+    ];
   } else {
-    return sortByLastCommitInput.checked ? "date" : "stars";
-  }
-}
-
-function getSortedThemes(themeList, sortedBy) {
-  if (sortedBy === "date") {
-    return themeList.sort((a, b) => b.date_in_seconds - a.date_in_seconds);
-  } else {
-    return themeList.sort((a, b) => b.num_stars - a.num_stars);
+    return ["date", "stars", "name", "minVer", "license"];
   }
 }
 
@@ -118,14 +113,15 @@ function buildResults() {
   let selectedTags = getSelectedTags();
   let selectedFeatures = getSelectedFeatures();
   let sortedBy = getSortBy();
-  let filtered_themes = getFilteredThemes(selectedTags, selectedFeatures);
-  let sorted_themes = getSortedThemes(filtered_themes, sortedBy);
+  // let filtered_themes = getFilteredThemes(selectedTags, selectedFeatures);
+  let sorted_themes = getFilteredThemes(selectedTags, selectedFeatures);
+  sortThemes(sorted_themes, sortedBy);
   sorted_themes.forEach((theme) => addThemeTableRow(theme, selectedColumns));
 
   // from buildSelectionMenu.js
   buildSelectionMenu(
     (sorted_themes = sorted_themes),
-    (sortedBy = sortedBy),
+    (sortBy = sortedBy),
     (selectedTags = selectedTags),
     (selectedFeatures = selectedFeatures),
     (selectedColumns = selectedColumns),

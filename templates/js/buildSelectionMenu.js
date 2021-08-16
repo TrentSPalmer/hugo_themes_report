@@ -57,7 +57,7 @@ function buildColumnSelectionDiv(selectedColumns, dState, eParent) {
 // called from buildPage.js
 function buildSelectionMenu(
   sorted_themes,
-  sortedBy,
+  sortBy,
   selectedTags,
   selectedFeatures,
   selectedColumns,
@@ -73,7 +73,7 @@ function buildSelectionMenu(
   let availableFeatures = getAvailableFeatures(sorted_themes, featureSortBy);
 
   // from buildSortByDiv.js
-  buildSortByDiv(sortedBy, dState.sortByRow);
+  buildSortByDiv((sortedBy = sortBy), (sortByRowDisplay = dState.sortByRow));
 
   buildColumnSelectionDiv(
     (selectedColumns = selectedColumns),

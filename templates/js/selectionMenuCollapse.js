@@ -44,6 +44,7 @@ document.getElementById("plus-button").onclick = function () {
 document.getElementById("minus-button").onclick = function () {
   if (areAnyCloseAbleMenusOpen()) {
     closeMenus();
+    showSelectionOptionsButtons();
   } else {
     document.getElementById("selection-options-menu").style.display = "none";
     this.style.display = "none";
