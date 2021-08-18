@@ -4,12 +4,15 @@ function showSelectionOptionsButtons() {
     "button-for-showing-columns",
     "button-for-filter-by-tags",
     "button-for-filter-by-features",
+    "button-for-filter-by-license",
     "button-for-filter-by-tags-and-features",
   ].forEach((x) => (document.getElementById(x).style.display = "inline-block"));
 }
 
 let closeableMenus = [
   "sortByRow",
+  "licenseSelectionHeadingRow",
+  "licenseSelectionRow",
   "columnSelectionHeadingRow",
   "columnSelectionRow",
   "tagSelectionHeadingRow",
@@ -83,6 +86,14 @@ document.getElementById("button-for-filter-by-features").onclick = function () {
   this.style.display = "none";
   document.getElementById("featureSelectionHeadingRow").style.display = "flex";
   document.getElementById("featureSelectionRow").style.display = "flex";
+};
+
+document.getElementById("button-for-filter-by-license").onclick = function () {
+  closeMenus();
+  showSelectionOptionsButtons();
+  this.style.display = "none";
+  document.getElementById("licenseSelectionHeadingRow").style.display = "flex";
+  document.getElementById("licenseSelectionRow").style.display = "flex";
 };
 
 document.getElementById("button-for-filter-by-tags-and-features").onclick =

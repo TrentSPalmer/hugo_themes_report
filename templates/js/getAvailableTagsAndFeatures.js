@@ -29,6 +29,32 @@ function getAvailableFeatures(sorted_themes, featureSortBy) {
 }
 
 // called from buildSelectionMenu.js
+function getAvailableLicenses(tagAndFeatureFilteredThemes, licenseSortBy) {
+  let availableLicences = [];
+  tagAndFeatureFilteredThemes.forEach((x) => {
+    if (!availableLicences.includes(x.license)) {
+      availableLicences.push(x.license);
+    }
+  });
+  let availableLicencesMap = availableLicences.map((x) => {
+    return {
+      license: x,
+      num_themes: tagAndFeatureFilteredThemes.filter((y) => y.license === x)
+        .length,
+    };
+  });
+  if (licenseSortBy === "numThemes") {
+    return availableLicencesMap
+      .sort((a, b) => a.license.localeCompare(b.license))
+      .sort((a, b) => b.num_themes - a.num_themes);
+  } else {
+    return availableLicencesMap.sort((a, b) =>
+      a.license.localeCompare(b.license)
+    );
+  }
+}
+
+// called from buildSelectionMenu.js
 function getAvailableTags(sorted_themes, tagSortBy) {
   let result = [];
   sorted_themes.forEach((x) => {

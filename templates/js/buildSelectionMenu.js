@@ -1,20 +1,11 @@
-function getTagSortBy() {
-  let tagSortByNumThemes = document.getElementById("tagSortByNumThemes");
-  if (tagSortByNumThemes === null) {
-    return "numThemes";
-  } else {
-    return tagSortByNumThemes.checked ? "numThemes" : "name";
-  }
-}
-
-function getFeatureSortBy() {
-  let featureSortByNumThemes = document.getElementById(
-    "featureSortByNumThemes"
+function getMenuSortBy(sortBySelector) {
+  let sortByNumThemes = document.getElementById(
+    `${sortBySelector}SortByNumThemes`
   );
-  if (featureSortByNumThemes === null) {
+  if (sortByNumThemes === null) {
     return "numThemes";
   } else {
-    return featureSortByNumThemes.checked ? "numThemes" : "name";
+    return sortByNumThemes.checked ? "numThemes" : "name";
   }
 }
 
@@ -56,46 +47,65 @@ function buildColumnSelectionDiv(selectedColumns, dState, eParent) {
 
 // called from buildPage.js
 function buildSelectionMenu(
+  tagAndFeatureFilteredThemes,
   sorted_themes,
   sortBy,
   selectedTags,
   selectedFeatures,
+  selectedLicenses,
   selectedColumns,
   dState
 ) {
-  let tagSortBy = getTagSortBy();
-  let featureSortBy = getFeatureSortBy();
+  let tagSortBy = getMenuSortBy("tag");
+  let featureSortBy = getMenuSortBy("feature");
+  let licenseSortBy = getMenuSortBy("license");
   let selectionMenuDiv = document.getElementById("selection-menu");
 
   // from getAvailableTagsAndFeatures.js
   let availableTags = getAvailableTags(sorted_themes, tagSortBy);
   // from getAvailableTagsAndFeatures.js
   let availableFeatures = getAvailableFeatures(sorted_themes, featureSortBy);
+  // from getAvailableTagsAndFeatures.js
+  let availableLicences = getAvailableLicenses(
+    tagAndFeatureFilteredThemes,
+    licenseSortBy
+  );
 
   // from buildSortByDiv.js
-  buildSortByDiv((sortedBy = sortBy), (sortByRowDisplay = dState.sortByRow));
+  buildSortByDiv(sortBy, dState.sortByRow);
 
-  buildColumnSelectionDiv(
-    (selectedColumns = selectedColumns),
-    (dState = dState),
-    (eParent = selectionMenuDiv)
+  buildColumnSelectionDiv(selectedColumns, dState, selectionMenuDiv);
+
+  // from buildSelectionDivs.js
+  buildSelectionDiv(
+    selectedLicenses,
+    availableLicences,
+    licenseSortBy,
+    dState.licenseSelectionRow,
+    dState.licenseSelectionHeadingRow,
+    selectionMenuDiv,
+    "license"
   );
 
-  // from buildTagAndFeatureSelectionDivs.js
-  buildTagSelectionDiv(
-    (selectedTags = selectedTags),
-    (availableTags = availableTags),
-    (tagSortBy = tagSortBy),
-    (dState = dState),
-    (eParent = selectionMenuDiv)
+  // from buildSelectionDivs.js
+  buildSelectionDiv(
+    selectedTags,
+    availableTags,
+    tagSortBy,
+    dState.tagSelectionRow,
+    dState.tagSelectionHeadingRow,
+    selectionMenuDiv,
+    "tag"
   );
 
-  // from buildTagAndFeatureSelectionDivs.js
-  buildFeatureSelectionDiv(
-    (selectedFeatures = selectedFeatures),
-    (availableFeatures = availableFeatures),
-    (featureSortBy = featureSortBy),
-    (dState = dState),
-    (eParent = selectionMenuDiv)
+  // from buildSelectionDivs.js
+  buildSelectionDiv(
+    selectedFeatures,
+    availableFeatures,
+    featureSortBy,
+    dState.featureSelectionRow,
+    dState.featureSelectionHeadingRow,
+    selectionMenuDiv,
+    "feature"
   );
 }

@@ -19,6 +19,7 @@
       <button type="button" id="button-for-showing-columns">Show Columns</button>
       <button type="button" id="button-for-filter-by-tags">Filter By Tags</button>
       <button type="button" id="button-for-filter-by-features">Filter By Features</button>
+      <button type="button" id="button-for-filter-by-license">Filter By License</button>
       <button type="button" id="button-for-filter-by-tags-and-features">Filter By Tags &amp; Features</button>
     </div>
     <div id="selection-menu" style="margin-bottom: 1rem;">
@@ -31,8 +32,8 @@ var themes = {{ themes }};
 {% include 'js/buildSelectionInputs.js' %}
 {% include 'js/getAvailableTagsAndFeatures.js' %}
 {% include 'js/buildSortByDiv.js' %}
-{% include 'js/buildTagAndFeatureSelectionHeadingRows.js' %}
-{% include 'js/buildTagAndFeatureSelectionDivs.js' %}
+{% include 'js/buildSelectionHeadingRows.js' %}
+{% include 'js/buildSelectionDivs.js' %}
 {% include 'js/buildSelectionMenu.js' %}
 {% include 'js/buildThemeTableRow.js' %}
 {% include 'js/getSortedThemes.js' %}

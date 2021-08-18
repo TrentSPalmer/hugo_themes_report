@@ -21,52 +21,52 @@ function buildSortByDiv(sortBy, sortByRowDisplay) {
 
   // from buildButton.js
   let sortByStarsButton = buildRadioButton(
-    (inputID = "sortByStars"),
-    (inputName = "sortBy"),
-    (inputValue = "stars"),
-    (sortedBy = sortBy[0]),
-    (sortedBySelector = "stars"),
-    (labelText = "Stars")
+    "sortByStars",
+    "sortBy",
+    "stars",
+    sortBy[0],
+    "stars",
+    "Stars"
   );
 
   // from buildButton.js
   let sortByLastCommitButton = buildRadioButton(
-    (inputID = "sortByDate"),
-    (inputName = "sortBy"),
-    (inputValue = "date"),
-    (sortedBy = sortBy[0]),
-    (sortedBySelector = "date"),
-    (labelText = "Latest Commit Date")
+    "sortByDate",
+    "sortBy",
+    "date",
+    sortBy[0],
+    "date",
+    "Latest Commit Date"
   );
 
   // from buildButton.js
   let sortByMinVerButton = buildRadioButton(
-    (inputID = "sortByMinVer"),
-    (inputName = "sortBy"),
-    (inputValue = "minVer"),
-    (sortedBy = sortBy[0]),
-    (sortedBySelector = "minVer"),
-    (labelText = "Min Hugo Version")
+    "sortByMinVer",
+    "sortBy",
+    "minVer",
+    sortBy[0],
+    "minVer",
+    "Min Hugo Version"
   );
 
   // from buildButton.js
   let sortByLicenseButton = buildRadioButton(
-    (inputID = "sortByLicense"),
-    (inputName = "sortBy"),
-    (inputValue = "license"),
-    (sortedBy = sortBy[0]),
-    (sortedBySelector = "license"),
-    (labelText = "License")
+    "sortByLicense",
+    "sortBy",
+    "license",
+    sortBy[0],
+    "license",
+    "License"
   );
 
   // from buildButton.js
   let sortByNameButton = buildRadioButton(
-    (inputID = "sortByName"),
-    (inputName = "sortBy"),
-    (inputValue = "name"),
-    (sortedBy = sortBy[0]),
-    (sortedBySelector = "name"),
-    (labelText = "Name")
+    "sortByName",
+    "sortBy",
+    "name",
+    sortBy[0],
+    "name",
+    "Name"
   );
 
   sortBy.forEach((x) => {

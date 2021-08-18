@@ -10,10 +10,12 @@ function getSortBy() {
   }
 }
 
-function getSelectedTags() {
-  let tagSelectionInputs = document.getElementsByClassName("tagSelectionInput");
-  if (tagSelectionInputs.length > 0) {
-    return [...tagSelectionInputs].filter((x) => x.checked).map((y) => y.value);
+function getSelected(filterCategory) {
+  let selectionInputs = document.getElementsByClassName(
+    `${filterCategory}SelectionInput`
+  );
+  if (selectionInputs.length > 0) {
+    return [...selectionInputs].filter((x) => x.checked).map((y) => y.value);
   } else {
     return [];
   }
@@ -35,26 +37,23 @@ function getSelectedColumns() {
   }
 }
 
-function getSelectedFeatures() {
-  let featureSelectionInputs = document.getElementsByClassName(
-    "featureSelectionInput"
-  );
-  if (featureSelectionInputs.length > 0) {
-    return [...featureSelectionInputs]
-      .filter((x) => x.checked)
-      .map((y) => y.value);
-  } else {
-    return [];
-  }
-}
-
-function getFilteredThemes(selectedTags, selectedFeatures) {
+function getTagAndFeatureFilteredThemes(selectedTags, selectedFeatures) {
   if (selectedTags.length === 0 && selectedFeatures.length === 0) {
     return themes;
   } else {
     return themes
       .filter((x) => selectedTags.every((y) => x.tags.includes(y)))
       .filter((z) => selectedFeatures.every((w) => z.features.includes(w)));
+  }
+}
+
+function getFilteredThemes(tagAndFeatureFilteredThemes, selectedLicenses) {
+  if (selectedLicenses.length === 0) {
+    return tagAndFeatureFilteredThemes;
+  } else {
+    return tagAndFeatureFilteredThemes.filter((x) =>
+      selectedLicenses.includes(x.license)
+    );
   }
 }
 
@@ -69,6 +68,8 @@ function getDiplayState() {
     "sortByRow",
     "columnSelectionHeadingRow",
     "columnSelectionRow",
+    "licenseSelectionHeadingRow",
+    "licenseSelectionRow",
     "tagSelectionHeadingRow",
     "tagSelectionRow",
     "featureSelectionHeadingRow",
@@ -110,22 +111,31 @@ function buildResults() {
       resultsTableHeadRow.appendChild(xTH);
     });
 
-  let selectedTags = getSelectedTags();
-  let selectedFeatures = getSelectedFeatures();
+  let selectedTags = getSelected("tag");
+  let selectedFeatures = getSelected("feature");
+  let selectedLicenses = getSelected("license");
   let sortedBy = getSortBy();
-  // let filtered_themes = getFilteredThemes(selectedTags, selectedFeatures);
-  let sorted_themes = getFilteredThemes(selectedTags, selectedFeatures);
-  sortThemes(sorted_themes, sortedBy);
-  sorted_themes.forEach((theme) => addThemeTableRow(theme, selectedColumns));
+  let tagAndFeatureFilteredThemes = getTagAndFeatureFilteredThemes(
+    selectedTags,
+    selectedFeatures
+  );
+  let filtered_themes = getFilteredThemes(
+    tagAndFeatureFilteredThemes,
+    selectedLicenses
+  );
+  sortThemes(filtered_themes, sortedBy);
+  filtered_themes.forEach((theme) => addThemeTableRow(theme, selectedColumns));
 
   // from buildSelectionMenu.js
   buildSelectionMenu(
-    (sorted_themes = sorted_themes),
-    (sortBy = sortedBy),
-    (selectedTags = selectedTags),
-    (selectedFeatures = selectedFeatures),
-    (selectedColumns = selectedColumns),
-    (dState = getDiplayState())
+    tagAndFeatureFilteredThemes,
+    filtered_themes,
+    sortedBy,
+    selectedTags,
+    selectedFeatures,
+    selectedLicenses,
+    selectedColumns,
+    getDiplayState()
   );
 }
 

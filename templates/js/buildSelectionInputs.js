@@ -33,6 +33,11 @@ function buildInput(item, selected, inpParent) {
     inputSelectionButton.style.width = "12rem";
     selectionInputLabel.innerHTML = `${item.tag} (${item.num_themes})`;
     selectionInput.classList.add("tagSelectionInput");
+  } else if ("license" in item) {
+    selectionInput.value = item.license;
+    inputSelectionButton.style.width = "15rem";
+    selectionInputLabel.innerHTML = `${item.license} (${item.num_themes})`;
+    selectionInput.classList.add("licenseSelectionInput");
   } else if ("headingName" in item) {
     selectionInput.value = `${item.headingName}-column`;
     selectionInputLabel.innerHTML = item.headingText;
