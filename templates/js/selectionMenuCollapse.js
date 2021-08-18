@@ -4,6 +4,7 @@ function showSelectionOptionsButtons() {
     "button-for-showing-columns",
     "button-for-filter-by-tags",
     "button-for-filter-by-features",
+    "button-for-filter-by-minver",
     "button-for-filter-by-license",
     "button-for-filter-by-tags-and-features",
   ].forEach((x) => (document.getElementById(x).style.display = "inline-block"));
@@ -19,6 +20,8 @@ let closeableMenus = [
   "tagSelectionRow",
   "featureSelectionHeadingRow",
   "featureSelectionRow",
+  "minVerSelectionHeadingRow",
+  "minVerSelectionRow",
 ];
 
 let areAnyCloseAbleMenusOpen = () =>
@@ -86,6 +89,14 @@ document.getElementById("button-for-filter-by-features").onclick = function () {
   this.style.display = "none";
   document.getElementById("featureSelectionHeadingRow").style.display = "flex";
   document.getElementById("featureSelectionRow").style.display = "flex";
+};
+
+document.getElementById("button-for-filter-by-minver").onclick = function () {
+  closeMenus();
+  showSelectionOptionsButtons();
+  this.style.display = "none";
+  document.getElementById("minVerSelectionHeadingRow").style.display = "flex";
+  document.getElementById("minVerSelectionRow").style.display = "flex";
 };
 
 document.getElementById("button-for-filter-by-license").onclick = function () {

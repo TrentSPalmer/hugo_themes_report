@@ -35,12 +35,14 @@ function buildColumnSelectionDiv(selectedColumns, dState, eParent) {
   tableColumns
     .filter((x) => selectedColumns.includes(x.headingName))
     .forEach((y) => {
+      // from buildSelectionInput.js
       buildInput(y, true, columnSelectionRow);
     });
 
   tableColumns
     .filter((x) => !selectedColumns.includes(x.headingName))
     .forEach((y) => {
+      // from buildSelectionInput.js
       buildInput(y, false, columnSelectionRow);
     });
 }
@@ -54,6 +56,7 @@ function buildSelectionMenu(
   selectedFeatures,
   selectedLicenses,
   selectedColumns,
+  selectedMinVer,
   dState
 ) {
   let tagSortBy = getMenuSortBy("tag");
@@ -61,11 +64,11 @@ function buildSelectionMenu(
   let licenseSortBy = getMenuSortBy("license");
   let selectionMenuDiv = document.getElementById("selection-menu");
 
-  // from getAvailableTagsAndFeatures.js
+  // from getAvailableTagsAndFeaturesAndLicenses.js
   let availableTags = getAvailableTags(sorted_themes, tagSortBy);
-  // from getAvailableTagsAndFeatures.js
+  // from getAvailableTagsAndFeaturesAndLicenses.js
   let availableFeatures = getAvailableFeatures(sorted_themes, featureSortBy);
-  // from getAvailableTagsAndFeatures.js
+  // from getAvailableTagsAndFeaturesAndLicenses.js
   let availableLicences = getAvailableLicenses(
     tagAndFeatureFilteredThemes,
     licenseSortBy
@@ -75,6 +78,8 @@ function buildSelectionMenu(
   buildSortByDiv(sortBy, dState.sortByRow);
 
   buildColumnSelectionDiv(selectedColumns, dState, selectionMenuDiv);
+
+  buildMinVerSelectionDiv(selectedMinVer, dState, selectionMenuDiv);
 
   // from buildSelectionDivs.js
   buildSelectionDiv(

@@ -37,17 +37,35 @@ function getSelectedColumns() {
   }
 }
 
-function getTagAndFeatureFilteredThemes(selectedTags, selectedFeatures) {
+function getTagAndFeatureFilteredThemes(
+  minVerFilteredThemes,
+  selectedTags,
+  selectedFeatures
+) {
   if (selectedTags.length === 0 && selectedFeatures.length === 0) {
-    return themes;
+    return minVerFilteredThemes;
   } else {
-    return themes
+    return minVerFilteredThemes
       .filter((x) => selectedTags.every((y) => x.tags.includes(y)))
       .filter((z) => selectedFeatures.every((w) => z.features.includes(w)));
   }
 }
 
-function getFilteredThemes(tagAndFeatureFilteredThemes, selectedLicenses) {
+function getMinVerFilteredThemes(selectedMinVer) {
+  if (selectedMinVer.length === 0 || selectedMinVer[0] === "none") {
+    return themes;
+  } else {
+    // return licenseFilteredThemes;
+    return themes
+      .filter((x) => x.min_ver !== "")
+      .filter((x) => semVerCompare(x.min_ver, selectedMinVer[0]) > -1);
+  }
+}
+
+function getLicenseFilteredThemes(
+  tagAndFeatureFilteredThemes,
+  selectedLicenses
+) {
   if (selectedLicenses.length === 0) {
     return tagAndFeatureFilteredThemes;
   } else {
@@ -70,10 +88,14 @@ function getDiplayState() {
     "columnSelectionRow",
     "licenseSelectionHeadingRow",
     "licenseSelectionRow",
+    "minVerSelectionHeadingRow",
+    "minVerSelectionRow",
     "tagSelectionHeadingRow",
     "tagSelectionRow",
     "featureSelectionHeadingRow",
     "featureSelectionRow",
+    "minVerSelectionHeadingRow",
+    "minVerSelectionRow",
   ].forEach((x) => (dState[x] = getDState(x)));
   return dState;
 }
@@ -114,27 +136,31 @@ function buildResults() {
   let selectedTags = getSelected("tag");
   let selectedFeatures = getSelected("feature");
   let selectedLicenses = getSelected("license");
+  let selectedMinVer = getSelected("minVerRadioButton");
   let sortedBy = getSortBy();
+  let minVerFilteredThemes = getMinVerFilteredThemes(selectedMinVer);
   let tagAndFeatureFilteredThemes = getTagAndFeatureFilteredThemes(
+    minVerFilteredThemes,
     selectedTags,
     selectedFeatures
   );
-  let filtered_themes = getFilteredThemes(
+  let filteredThemes = getLicenseFilteredThemes(
     tagAndFeatureFilteredThemes,
     selectedLicenses
   );
-  sortThemes(filtered_themes, sortedBy);
-  filtered_themes.forEach((theme) => addThemeTableRow(theme, selectedColumns));
+  sortThemes(filteredThemes, sortedBy);
+  filteredThemes.forEach((theme) => addThemeTableRow(theme, selectedColumns));
 
   // from buildSelectionMenu.js
   buildSelectionMenu(
     tagAndFeatureFilteredThemes,
-    filtered_themes,
+    filteredThemes,
     sortedBy,
     selectedTags,
     selectedFeatures,
     selectedLicenses,
     selectedColumns,
+    selectedMinVer,
     getDiplayState()
   );
 }

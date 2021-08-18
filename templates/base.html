@@ -17,6 +17,7 @@
     <div id="selection-options-menu" style="display: none">
       <button type="button" id="button-for-showing-sort-option">SortBy</button>
       <button type="button" id="button-for-showing-columns">Show Columns</button>
+      <button type="button" id="button-for-filter-by-minver">Filter By MinVer</button>
       <button type="button" id="button-for-filter-by-tags">Filter By Tags</button>
       <button type="button" id="button-for-filter-by-features">Filter By Features</button>
       <button type="button" id="button-for-filter-by-license">Filter By License</button>
@@ -30,13 +31,14 @@
 var themes = {{ themes }};
 {% include 'js/buildButton.js' %}
 {% include 'js/buildSelectionInputs.js' %}
-{% include 'js/getAvailableTagsAndFeatures.js' %}
+{% include 'js/getAvailableTagsAndFeaturesAndLicenses.js' %}
 {% include 'js/buildSortByDiv.js' %}
 {% include 'js/buildSelectionHeadingRows.js' %}
 {% include 'js/buildSelectionDivs.js' %}
+{% include 'js/getSortedThemes.js' %}
+{% include 'js/minVersions.js' %}
 {% include 'js/buildSelectionMenu.js' %}
 {% include 'js/buildThemeTableRow.js' %}
-{% include 'js/getSortedThemes.js' %}
 {% include 'js/buildPage.js' %}
 {% include 'js/selectionMenuCollapse.js' %}
     </script>
