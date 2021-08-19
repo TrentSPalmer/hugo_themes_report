@@ -163,6 +163,15 @@ function buildResults() {
     selectedMinVer,
     getDiplayState()
   );
+
+  buildDescription(
+    selectedColumns,
+    sortedBy,
+    selectedMinVer,
+    selectedLicenses,
+    selectedTags,
+    selectedFeatures
+  );
 }
 
 buildResults();

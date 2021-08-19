@@ -25,10 +25,13 @@
     </div>
     <div id="selection-menu" style="margin-bottom: 1rem;">
     </div>
+    <div id="description">
+    </div>
     <div id="results">
     </div>
     <script>
 var themes = {{ themes }};
+{% include 'js/buildDescription.js' %}
 {% include 'js/buildButton.js' %}
 {% include 'js/buildSelectionInputs.js' %}
 {% include 'js/getAvailableTagsAndFeaturesAndLicenses.js' %}
