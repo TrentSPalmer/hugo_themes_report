@@ -12,3 +12,5 @@ I have the script running on a cron job, if you would like to see [the result](h
 * [hugo themes report](https://trentsonlinedocs.xyz/hugo-themes-report/hugo-themes-report.html)
 * [master list of hugo themes](https://github.com/gohugoio/hugoThemesSiteBuilder/blob/main/themes.txt)
 * [hugo themes home page](https://themes.gohugo.io/)
+
+![screenshot.png](https://github.com/TrentSPalmer/hugo_themes_report/blob/master/screenshot.png)
