@@ -1,4 +1,9 @@
-function addThemeTableRow(theme, selectedColumns, selectedTags) {
+function addThemeTableRow(
+  theme,
+  selectedColumns,
+  selectedTags,
+  selectedFeatures
+) {
   let resultsTable = document.getElementById("resultsTable");
   let resultsTableRow = document.createElement("tr");
 
@@ -68,7 +73,16 @@ function addThemeTableRow(theme, selectedColumns, selectedTags) {
     let featuresTD = document.createElement("td");
     let fL = theme.features.length - 1;
     fL += theme.features.map((x) => x.length).reduce((a, b) => a + b, 0);
-    featuresTD.innerHTML = theme.features;
+    let sFeatures = theme.features.filter((x) => selectedFeatures.includes(x));
+    let nsFeatures = theme.features.filter(
+      (x) => !selectedFeatures.includes(x)
+    );
+    if (sFeatures.length > 0 && nsFeatures.length > 0) {
+      featuresTD.innerHTML = `<span style="color: green">${sFeatures}</span>,${nsFeatures}`;
+    } else {
+      featuresTD.innerHTML = `<span style="color: green">${sFeatures}</span>${nsFeatures}`;
+    }
+    // featuresTD.innerHTML = theme.features;
     featuresTD.style.minWidth = `${fL / 7}rem`;
     resultsTableRow.appendChild(featuresTD);
   }

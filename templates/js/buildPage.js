@@ -151,7 +151,7 @@ function buildResults() {
   sortThemes(filteredThemes, sortedBy);
   // from buildThemeTableRow.js
   filteredThemes.forEach((theme) =>
-    addThemeTableRow(theme, selectedColumns, selectedTags)
+    addThemeTableRow(theme, selectedColumns, selectedTags, selectedFeatures)
   );
 
   // from buildSelectionMenu.js
