@@ -149,7 +149,10 @@ function buildResults() {
     selectedLicenses
   );
   sortThemes(filteredThemes, sortedBy);
-  filteredThemes.forEach((theme) => addThemeTableRow(theme, selectedColumns));
+  // from buildThemeTableRow.js
+  filteredThemes.forEach((theme) =>
+    addThemeTableRow(theme, selectedColumns, selectedTags)
+  );
 
   // from buildSelectionMenu.js
   buildSelectionMenu(

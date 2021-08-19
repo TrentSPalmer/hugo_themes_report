@@ -1,4 +1,4 @@
-function addThemeTableRow(theme, selectedColumns) {
+function addThemeTableRow(theme, selectedColumns, selectedTags) {
   let resultsTable = document.getElementById("resultsTable");
   let resultsTableRow = document.createElement("tr");
 
@@ -53,7 +53,13 @@ function addThemeTableRow(theme, selectedColumns) {
     let tagsTD = document.createElement("td");
     let tL = theme.tags.length - 1;
     tL += theme.tags.map((x) => x.length).reduce((a, b) => a + b, 0);
-    tagsTD.innerHTML = theme.tags;
+    let sTags = theme.tags.filter((x) => selectedTags.includes(x));
+    let nsTags = theme.tags.filter((x) => !selectedTags.includes(x));
+    if (sTags.length > 0 && nsTags.length > 0) {
+      tagsTD.innerHTML = `<span style="color: green">${sTags}</span>,${nsTags}`;
+    } else {
+      tagsTD.innerHTML = `<span style="color: green">${sTags}</span>${nsTags}`;
+    }
     tagsTD.style.minWidth = `${tL / 7}rem`;
     resultsTableRow.appendChild(tagsTD);
   }
