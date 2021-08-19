@@ -101,7 +101,7 @@ function getDiplayState() {
 }
 
 let tableColumns = [
-  { headingName: "cname", headingText: "theme" },
+  { headingName: "cname", headingText: "themes" },
   { headingName: "date", headingText: "date" },
   { headingName: "num_stars", headingText: "stars" },
   { headingName: "commit", headingText: "commit" },
@@ -125,14 +125,6 @@ function buildResults() {
   resultsTable.appendChild(resultsTableHeadRow);
   let selectedColumns = getSelectedColumns();
 
-  tableColumns
-    .filter((y) => selectedColumns.includes(y.headingName))
-    .forEach((x) => {
-      let xTH = document.createElement("th");
-      xTH.innerHTML = x.headingText;
-      resultsTableHeadRow.appendChild(xTH);
-    });
-
   let selectedTags = getSelected("tag");
   let selectedFeatures = getSelected("feature");
   let selectedLicenses = getSelected("license");
@@ -153,6 +145,18 @@ function buildResults() {
   filteredThemes.forEach((theme) =>
     addThemeTableRow(theme, selectedColumns, selectedTags, selectedFeatures)
   );
+
+  tableColumns
+    .filter((y) => selectedColumns.includes(y.headingName))
+    .forEach((x) => {
+      let xTH = document.createElement("th");
+      if (x.headingText === "themes") {
+        xTH.innerHTML = `${filteredThemes.length}/${themes.length} ${x.headingText}`;
+      } else {
+        xTH.innerHTML = x.headingText;
+      }
+      resultsTableHeadRow.appendChild(xTH);
+    });
 
   // from buildSelectionMenu.js
   buildSelectionMenu(
