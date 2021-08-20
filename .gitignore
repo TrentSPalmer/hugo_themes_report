@@ -1,4 +1,5 @@
 hugothemes.db
 __pycache__
+test/__pycache__
 hugo-themes-report
 hugo_themes_report.log
