@@ -1,8 +1,8 @@
 from test.test_selenium import TestSelenium
-import unittest
+from unittest import TestCase
 
 
-class TestTitle(TestSelenium, unittest.TestCase):
+class TestTitle(TestSelenium, TestCase):
     def setUp(self):
         super(TestTitle, self).setUp()
         self.x = self.driver.find_elements_by_tag_name('h1')
@@ -20,5 +20,8 @@ class TestTitle(TestSelenium, unittest.TestCase):
     def test_title_anchor(self):
         x_anchors = self.x[0].find_elements_by_tag_name('a')
         self.assertEqual(len(x_anchors), 1)
-        self.assertEqual(x_anchors[0].get_attribute('href'), 'https://github.com/TrentSPalmer/hugo_themes_report')
+        self.assertEqual(
+            x_anchors[0].get_attribute('href'),
+            'https://github.com/TrentSPalmer/hugo_themes_report'
+        )
         self.assertEqual(x_anchors[0].get_attribute('target'), '_blank')

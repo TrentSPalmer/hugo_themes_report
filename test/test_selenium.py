@@ -1,4 +1,4 @@
-import unittest
+from unittest import TestCase
 from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -12,7 +12,7 @@ SOURCE_FILE = Path('hugo-themes-report/hugo-themes-report.html').resolve()
 SOURCE_PAGE = f'file://{str(SOURCE_FILE)}'
 
 
-class TestSelenium(unittest.TestCase):
+class TestSelenium(TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome(options=OPTIONS, service=SERVICE)
         self.driver.get(SOURCE_PAGE)
