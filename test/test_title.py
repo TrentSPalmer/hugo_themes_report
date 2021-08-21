@@ -10,12 +10,14 @@ class TestTitle(TestSelenium, TestCase):
     def test_title(self):
         self.assertEqual(len(self.x), 1)
         self.assertEqual(self.x[0].get_attribute('id'), 'title')
-        self.assertEqual(self.x[0].value_of_css_property('text-align'), 'center')
+        self.assertEqual(
+            self.x[0].value_of_css_property('text-align'), 'center')
         self.assertEqual(self.x[0].value_of_css_property('display'), 'block')
         self.assertEqual(self.x[0].value_of_css_property('max-width'), '736px')
         self.assertEqual(self.x[0].value_of_css_property('font-size'), '32px')
         self.assertEqual(self.x[0].value_of_css_property('font-weight'), '700')
-        self.assertEqual(self.x[0].value_of_css_property('font-family'), 'sans-serif')
+        self.assertEqual(
+            self.x[0].value_of_css_property('font-family'), 'sans-serif')
 
     def test_title_anchor(self):
         x_anchors = self.x[0].find_elements_by_tag_name('a')
