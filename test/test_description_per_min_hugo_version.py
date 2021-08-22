@@ -3,7 +3,7 @@ from unittest import TestCase
 
 
 class TestDescriptionPerMinHugoVersion(TestDescription, TestCase):
-    def test_min_hug_version(self):
+    def test_description_per_min_hugo_version(self):
 
         self.driver.find_element_by_id('button-for-filter-by-minver').click()
 
@@ -21,8 +21,7 @@ class TestDescriptionPerMinHugoVersion(TestDescription, TestCase):
 
         for x in inputs:
             button = self.driver.find_element_by_id(
-                x
-            ).find_element_by_xpath('..')
+                x).find_element_by_xpath('..')
 
             self.min_ver = button.find_element_by_tag_name('label').text
 
