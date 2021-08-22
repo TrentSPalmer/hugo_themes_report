@@ -24,17 +24,17 @@ function buildInput(item, selected, inpParent) {
   };
 
   if ("feature" in item) {
-    selectionInput.value = item.feature;
+    selectionInput.value = `${item.feature}-feature`;
     inputSelectionButton.style.width = "15rem";
     selectionInputLabel.innerHTML = `${item.feature} (${item.num_themes})`;
     selectionInput.classList.add("featureSelectionInput");
   } else if ("tag" in item) {
-    selectionInput.value = item.tag;
+    selectionInput.value = `${item.tag}-tag`;
     inputSelectionButton.style.width = "12rem";
     selectionInputLabel.innerHTML = `${item.tag} (${item.num_themes})`;
     selectionInput.classList.add("tagSelectionInput");
   } else if ("license" in item) {
-    selectionInput.value = item.license;
+    selectionInput.value = `${item.license}-license`;
     inputSelectionButton.style.width = "15rem";
     selectionInputLabel.innerHTML = `${item.license} (${item.num_themes})`;
     selectionInput.classList.add("licenseSelectionInput");

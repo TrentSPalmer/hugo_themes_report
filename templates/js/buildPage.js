@@ -125,9 +125,9 @@ function buildResults() {
   resultsTable.appendChild(resultsTableHeadRow);
   let selectedColumns = getSelectedColumns();
 
-  let selectedTags = getSelected("tag");
-  let selectedFeatures = getSelected("feature");
-  let selectedLicenses = getSelected("license");
+  let selectedTags = getSelected("tag").map(x => x.slice(0,-4));
+  let selectedFeatures = getSelected("feature").map(x => x.slice(0,-8));
+  let selectedLicenses = getSelected("license").map(x => x.slice(0,-8));
   let selectedMinVer = getSelected("minVerRadioButton");
   let sortedBy = getSortBy();
   let minVerFilteredThemes = getMinVerFilteredThemes(selectedMinVer);
