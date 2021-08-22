@@ -3,7 +3,7 @@ from unittest import TestCase
 
 
 class TestDescriptionPerMoreColumns(TestDescription, TestCase):
-    def test_more_columns(self):
+    def test_description_per_more_columns(self):
         self.driver.find_element_by_id(
             'button-for-showing-columns').click()
 
