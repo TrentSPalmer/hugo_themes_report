@@ -19,3 +19,10 @@ class TestSelenium(TestCase):
 
     def tearDown(self):
         self.driver.quit()
+
+
+class TestIDsForDuplicates(TestSelenium, TestCase):
+    def test_for_unique_ids(self):
+        ids = [x.get_attribute(
+            'id') for x in self.driver.find_elements_by_xpath('//*[@id]')]
+        self.assertEqual(len(ids), len(set(ids)))
