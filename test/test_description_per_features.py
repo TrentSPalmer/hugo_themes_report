@@ -65,5 +65,5 @@ class TestDescriptionPerFeatures(TestDescription, TestCase):
 
             button.click()
 
-            self.assertIn(feature, self.desc.text[-15:])
+            self.assertIn(feature, self.desc.text[158:])
             self.randomly_select_feature()
