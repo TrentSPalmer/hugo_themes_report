@@ -40,6 +40,18 @@ def get_themes_orderedby_cname():
         Hugothemes).order_by(asc(func.lower(Hugothemes.cname))).all()
 
 
+def get_themes_as_dicts_of_sortable_columns():
+    session = sessionmaker(bind=engine)()
+    return [
+        {
+            'name': x.cname,
+            'date': x.commit_date[0:10],
+            'stars': str(x.stargazers_count),
+            'min_ver': '' if x.min_ver is None else x.min_ver,
+            'license': x.theme_license,
+        } for x in session.query(Hugothemes).all()]
+
+
 def get_themes():
     session = sessionmaker(bind=engine)()
     return session.query(Hugothemes).all()
