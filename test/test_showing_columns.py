@@ -5,9 +5,9 @@ from test.database import get_themes_orderedby_cname
 from ast import literal_eval
 
 
-class TestShowingButtons(TestSelenium, TestCase):
+class TestShowingColumns(TestSelenium, TestCase):
     def setUp(self):
-        super(TestShowingButtons, self).setUp()
+        super(TestShowingColumns, self).setUp()
         self.driver.find_element_by_id('plus-button').click()
         self.driver.find_element_by_id(
             'button-for-showing-sort-option').click()
