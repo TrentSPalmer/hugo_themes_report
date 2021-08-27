@@ -481,8 +481,10 @@ def parse_themes_toml_for_each_hugo_themes():
             if 'tags' in theme_toml:
                 if len(theme_toml['tags']) > 0:
                     corrected_tags = get_corrected_tags(theme_toml['tags'])
-                    theme_tags = [
-                        tag.lower() for tag in corrected_tags if len(tag) > 1]
+                    tt = [
+                        tag.lower() for tag in corrected_tags if len(tag) > 1
+                    ]
+                    theme_tags = list(set(tt))
                     if theme.num_tags != len(theme_tags):
                         theme.num_tags = len(theme_tags)
                     if theme.num_tags > 0:
@@ -498,9 +500,11 @@ def parse_themes_toml_for_each_hugo_themes():
                 if theme.num_tags != 0: theme.num_tags = 0
             if 'features' in theme_toml:
                 if len(theme_toml['features']) > 0:
-                    theme_features = [
-                        feature.lower() for feature in theme_toml[
-                            'features'] if len(feature) > 1]
+                    tf = [
+                        feature.lower() for feature in
+                        theme_toml['features'] if len(feature) > 1
+                    ]
+                    theme_features = list(set(tf))
                     if theme.num_features != len(theme_features):
                         theme.num_features = len(theme_features)
                     if theme.num_features > 0:
