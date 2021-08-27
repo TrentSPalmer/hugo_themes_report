@@ -10,12 +10,12 @@ class TestFilterByFeatures(TestSelenium, TestCase):
     def setUp(self):
         super(TestFilterByFeatures, self).setUp()
         for x in [
-                'plus-button',
-                'button-for-showing-columns',
-                'features-column-selection-input',
-                'button-for-showing-sort-option',
-                'sortByName',
-                'button-for-filter-by-features',
+            'plus-button',
+            'button-for-showing-columns',
+            'features-column-selection-input',
+            'button-for-showing-sort-option',
+            'sortByName',
+            'button-for-filter-by-features',
         ]:
             self.driver.find_element_by_id(x).click()
 
