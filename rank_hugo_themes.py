@@ -526,8 +526,9 @@ def parse_themes_toml_for_each_hugo_themes():
             else:
                 if theme.theme_license is not None: theme.theme_license = None
             if 'min_version' in theme_toml:
-                if theme.min_ver != theme_toml['min_version']:
-                    theme.min_ver = theme_toml['min_version']
+                corrected_mv = get_corrected_min_ver(theme_toml['min_version'])
+                if theme.min_ver != corrected_mv:
+                    theme.min_ver = corrected_mv
             else:
                 if theme.min_ver is not None: theme.min_ver = None
             if 'description' in theme_toml:
@@ -550,6 +551,13 @@ def parse_themes_toml_for_each_hugo_themes():
             if theme.desc is not None: theme.desc = None
             if theme.cname is not None: theme.cname = None
         session.commit()
+
+
+def get_corrected_min_ver(x):
+    if 'o' in str(x):
+        return x.replace('o', '0')
+    else:
+        return x
 
 
 def generate_report():
