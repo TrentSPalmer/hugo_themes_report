@@ -15,6 +15,7 @@ SOURCE_PAGE = f'file://{str(SOURCE_FILE)}'
 class TestSelenium(TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome(options=OPTIONS, service=SERVICE)
+        self.driver.set_window_size(1920, 1080)
         self.driver.get(SOURCE_PAGE)
 
     def tearDown(self):

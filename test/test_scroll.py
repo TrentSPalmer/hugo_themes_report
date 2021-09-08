@@ -14,8 +14,8 @@ class TestScroll(TestSelenium, TestCase):
         self.driver.execute_script(
             "window.scrollTo(0,document.body.scrollHeight)"
         )
-        self.assertEqual(
-            self.driver.execute_script("return window.pageYOffset"), 12461)
+        self.assertGreaterEqual(
+            self.driver.execute_script("return window.pageYOffset"), 12061)
 
     def test_plus_button_scroll_to_top(self):
         self.assertEqual(
@@ -23,8 +23,8 @@ class TestScroll(TestSelenium, TestCase):
         self.driver.execute_script(
             "window.scrollTo(0,document.body.scrollHeight)"
         )
-        self.assertEqual(
-            self.driver.execute_script("return window.pageYOffset"), 12461)
+        self.assertGreaterEqual(
+            self.driver.execute_script("return window.pageYOffset"), 12061)
         self.plus_button.click()
         self.assertEqual(
             self.driver.execute_script("return window.pageYOffset"), 0)
@@ -36,8 +36,8 @@ class TestScroll(TestSelenium, TestCase):
         self.driver.execute_script(
             "window.scrollTo(0,document.body.scrollHeight)"
         )
-        self.assertEqual(
-            self.driver.execute_script("return window.pageYOffset"), 12573)
+        self.assertGreaterEqual(
+            self.driver.execute_script("return window.pageYOffset"), 12125)
         self.minus_button.click()
         self.assertEqual(
             self.driver.execute_script("return window.pageYOffset"), 0)

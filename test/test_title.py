@@ -13,7 +13,8 @@ class TestTitle(TestSelenium, TestCase):
         self.assertEqual(
             self.x[0].value_of_css_property('text-align'), 'center')
         self.assertEqual(self.x[0].value_of_css_property('display'), 'block')
-        self.assertEqual(self.x[0].value_of_css_property('max-width'), '736px')
+        self.assertEqual(
+            self.x[0].value_of_css_property('max-width'), '1856px')
         self.assertEqual(self.x[0].value_of_css_property('font-size'), '32px')
         self.assertEqual(self.x[0].value_of_css_property('font-weight'), '700')
         self.assertEqual(
