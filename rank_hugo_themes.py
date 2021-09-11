@@ -178,18 +178,26 @@ def parse_gitlab_hugo_themes_list():
                 session.commit()
 
 
+def get_corrected_url(x):
+    if 'neofeed-theme' in x:
+        return x.rstrip('/v2')
+    else:
+        return x
+
+
 def parse_hugo_themes_list():
     session = sessionmaker(bind=engine)()
     for theme in THEMESLIST:
         theme_name = theme[11:]
+        theme_url = get_corrected_url(theme)
         existing_theme = session.query(
             Hugothemes).filter_by(name=theme_name).first()
         if existing_theme is None:
-            session.add(Hugothemes(name=theme_name, url=theme))
+            session.add(Hugothemes(name=theme_name, url=theme_url))
             session.commit()
         else:
-            if existing_theme.url != theme:
-                existing_theme.url = theme
+            if existing_theme.url != theme_url:
+                existing_theme.url = theme_url
                 session.commit()
 
 
@@ -213,13 +221,21 @@ def get_gitlab_project_ids():
             print(response.status_code, get_gitlab_project_ids.__name__)
 
 
+def get_corrected_theme_name(x):
+    if 'neofeed-theme' in x:
+        return x.rstrip('/v2')
+    else:
+        return x
+
+
 def get_commit_info_for_hugo_themes():
     session = sessionmaker(bind=engine)()
     theme_names_from_github = get_github_themes_name_list()
     for hugo_theme in theme_names_from_github:
         theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
+        theme_name = get_corrected_theme_name(theme.name)
         api_call_url = 'https://api.github.com/repos/'
-        api_call_url += f'{theme.name}/commits/{theme.default_branch}'
+        api_call_url += f'{theme_name}/commits/{theme.default_branch}'
 
         if theme.ETag is not None:
             headers['If-None-Match'] = theme.ETag
@@ -295,7 +311,8 @@ def get_repo_info_for_hugo_themes():
     theme_names_from_github = get_github_themes_name_list()
     for hugo_theme in theme_names_from_github:
         theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
-        api_call_url = 'https://api.github.com/repos/' + theme.name
+        theme_name = get_corrected_theme_name(theme.name)
+        api_call_url = 'https://api.github.com/repos/' + theme_name
 
         if theme.repo_ETag is not None:
             headers['If-None-Match'] = theme.repo_ETag
@@ -361,8 +378,9 @@ def get_theme_dot_toml_for_each_hugo_themes():
             theme_toml = 'wowchemy/theme.toml'
         else:
             theme_toml = 'theme.toml'
+        theme_name = get_corrected_theme_name(theme.name)
         api_call_url = "https://api.github.com/repos/"
-        api_call_url += f"{theme.name}/contents/{theme_toml}"
+        api_call_url += f"{theme_name}/contents/{theme_toml}"
 
         if theme.themes_toml_ETag is not None:
             headers['If-None-Match'] = theme.themes_toml_ETag
@@ -546,7 +564,7 @@ def parse_themes_toml_for_each_hugo_themes():
             if theme.num_tags != 0: theme.num_tags = 0
             if theme.features_list is not None: theme.features_list = None
             if theme.num_features != 0: theme.num_features = 0
-            if theme.license is not None: theme.license = None
+            if theme.theme_license is not None: theme.theme_license = None
             if theme.min_ver is not None: theme.min_ver = None
             if theme.desc is not None: theme.desc = None
             if theme.cname is not None: theme.cname = None
