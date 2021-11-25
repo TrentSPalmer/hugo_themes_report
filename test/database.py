@@ -2,7 +2,8 @@ from rank_hugo_themes import (
     engine, Hugothemes,
     Hugothemes_from_gitlab, sessionmaker
 )
-from sqlalchemy import asc, func
+from test.theme_compare import cname_compare
+from functools import cmp_to_key
 
 
 def get_theme_count():
@@ -36,8 +37,9 @@ def get_newest_update_time_from_gitlab():
 
 def get_themes_orderedby_cname():
     session = sessionmaker(bind=engine)()
-    return session.query(
-        Hugothemes).order_by(asc(func.lower(Hugothemes.cname))).all()
+    result = session.query(Hugothemes).all()
+    result.sort(key=cmp_to_key(lambda a, b: cname_compare(a, b)))
+    return result
 
 
 def get_themes_as_dicts_of_sortable_columns():

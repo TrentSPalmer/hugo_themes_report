@@ -17,7 +17,10 @@ def semver_split(item):
 
 def compare_theme(x, y, sort_key):
     if sort_key == 'sortByName':
-        return compare_jk(y['name'].lower(), x['name'].lower())
+        if y['name'].lower() == x['name'].lower():
+            return compare_jk(x['name'], y['name'])
+        else:
+            return compare_jk(y['name'].lower(), x['name'].lower())
 
     elif sort_key == 'sortByStars':
         return compare_jk(int(x['stars']), int(y['stars']))
@@ -41,3 +44,10 @@ def theme_compare(a, b, y):
     if len(y) == 0: return -1
     rslt = compare_theme(a, b, y[0])
     return theme_compare(a, b, y[1:]) if rslt == 0 else rslt
+
+
+def cname_compare(a, b):
+    if a.cname.lower() == b.cname.lower():
+        return 1 if a.cname < b.cname else -1
+    else:
+        return -1 if a.cname.lower() < b.cname.lower() else 1
