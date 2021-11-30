@@ -457,7 +457,8 @@ def coalesce_themes():
                 themes_toml_content=htfgitlab.themes_toml_content,
             ))
         else:
-            if theme.url != htfgitlab.url: theme.url = htfgitlab.url
+            if theme.url != htfgitlab.url:
+                theme.url = htfgitlab.url
             if theme.commit_sha != htfgitlab.commit_sha:
                 theme.commit_sha = htfgitlab.commit_sha
             if theme.commit_date != htfgitlab.commit_date:
@@ -475,7 +476,8 @@ def get_corrected_tags(tags):
     result = []
     correct = True
     for tag in tags:
-        if (len(tag) > 50): correct = False
+        if (len(tag) > 50):
+            correct = False
     if not correct:
         for tag in tags:
             result += [x.lstrip() for x in tag.split(',')]
@@ -509,13 +511,18 @@ def parse_themes_toml_for_each_hugo_themes():
                         if theme.tags_list != str(theme_tags):
                             theme.tags_list = str(theme_tags)
                     else:
-                        if theme.tags_list is not None: theme.tags_list = None
+                        if theme.tags_list is not None:
+                            theme.tags_list = None
                 else:
-                    if theme.tags_list is not None: theme.tags_list = None
-                    if theme.num_tags != 0: theme.num_tags = 0
+                    if theme.tags_list is not None:
+                        theme.tags_list = None
+                    if theme.num_tags != 0:
+                        theme.num_tags = 0
             else:
-                if theme.tags_list is not None: theme.tags_list = None
-                if theme.num_tags != 0: theme.num_tags = 0
+                if theme.tags_list is not None:
+                    theme.tags_list = None
+                if theme.num_tags != 0:
+                    theme.num_tags = 0
             if 'features' in theme_toml:
                 if len(theme_toml['features']) > 0:
                     tf = [
@@ -534,40 +541,55 @@ def parse_themes_toml_for_each_hugo_themes():
                 else:
                     if theme.features_list is not None:
                         theme.features_list = None
-                    if theme.num_features != 0: theme.num_features = 0
+                    if theme.num_features != 0:
+                        theme.num_features = 0
             else:
-                if theme.features_list is not None: theme.features_list = None
-                if theme.num_features != 0: theme.num_features = 0
+                if theme.features_list is not None:
+                    theme.features_list = None
+                if theme.num_features != 0:
+                    theme.num_features = 0
             if 'license' in theme_toml:
                 if theme.theme_license != theme_toml['license']:
                     theme.theme_license = theme_toml['license']
             else:
-                if theme.theme_license is not None: theme.theme_license = None
+                if theme.theme_license is not None:
+                    theme.theme_license = None
             if 'min_version' in theme_toml:
                 corrected_mv = get_corrected_min_ver(theme_toml['min_version'])
                 if theme.min_ver != corrected_mv:
                     theme.min_ver = corrected_mv
             else:
-                if theme.min_ver is not None: theme.min_ver = None
+                if theme.min_ver is not None:
+                    theme.min_ver = None
             if 'description' in theme_toml:
                 if theme.desc != theme_toml['description']:
                     theme.desc = theme_toml['description']
             else:
-                if theme.desc is not None: theme.desc = None
+                if theme.desc is not None:
+                    theme.desc = None
             if 'name' in theme_toml:
                 if theme.cname != theme_toml['name']:
                     theme.cname = theme_toml['name']
             else:
-                if theme.cname is not None: theme.cname = None
+                if theme.cname is not None:
+                    theme.cname = None
         else:
-            if theme.tags_list is not None: theme.tags_list = None
-            if theme.num_tags != 0: theme.num_tags = 0
-            if theme.features_list is not None: theme.features_list = None
-            if theme.num_features != 0: theme.num_features = 0
-            if theme.theme_license is not None: theme.theme_license = None
-            if theme.min_ver is not None: theme.min_ver = None
-            if theme.desc is not None: theme.desc = None
-            if theme.cname is not None: theme.cname = None
+            if theme.tags_list is not None:
+                theme.tags_list = None
+            if theme.num_tags != 0:
+                theme.num_tags = 0
+            if theme.features_list is not None:
+                theme.features_list = None
+            if theme.num_features != 0:
+                theme.num_features = 0
+            if theme.theme_license is not None:
+                theme.theme_license = None
+            if theme.min_ver is not None:
+                theme.min_ver = None
+            if theme.desc is not None:
+                theme.desc = None
+            if theme.cname is not None:
+                theme.cname = None
         session.commit()
 
 
