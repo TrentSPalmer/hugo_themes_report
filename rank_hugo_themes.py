@@ -181,6 +181,8 @@ def parse_gitlab_hugo_themes_list():
 def get_corrected_url(x):
     if 'neofeed-theme' in x:
         return x.rstrip('/v2')
+    elif 'docuapi' in x:
+        return x.rstrip('/v2')
     else:
         return x
 
@@ -223,6 +225,8 @@ def get_gitlab_project_ids():
 
 def get_corrected_theme_name(x):
     if 'neofeed-theme' in x:
+        return x.rstrip('/v2')
+    elif 'docuapi' in x:
         return x.rstrip('/v2')
     else:
         return x
