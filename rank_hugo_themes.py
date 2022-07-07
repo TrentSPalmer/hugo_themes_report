@@ -183,6 +183,8 @@ def get_corrected_url(x):
         return x.rstrip("/v2")
     elif "docuapi" in x:
         return x.rstrip("/v2")
+    elif "bilberry-hugo-theme" in x:
+        return x.rstrip("/v3")
     else:
         return x
 
@@ -225,6 +227,8 @@ def get_corrected_theme_name(x):
         return x.rstrip("/v2")
     elif "osprey-delight" in x:
         return x.rstrip("/v5")
+    elif "bilberry-hugo-theme" in x:
+        return x.rstrip("/v3")
     else:
         return x
 
@@ -377,11 +381,10 @@ def get_theme_dot_toml_for_each_hugo_themes():
     theme_names_from_github = get_github_themes_name_list()
     for hugo_theme in theme_names_from_github:
         theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
-        if theme.name == "gcushen/hugo-academic":
-            theme_toml = "wowchemy/theme.toml"
-        else:
-            theme_toml = "theme.toml"
+        theme_toml = "theme.toml"
         theme_name = get_corrected_theme_name(theme.name)
+        if theme.name == "gcushen/hugo-academic":
+            theme_name = "wowchemy/starter-hugo-academic"
         api_call_url = "https://api.github.com/repos/"
         api_call_url += f"{theme_name}/contents/{theme_toml}"
 
