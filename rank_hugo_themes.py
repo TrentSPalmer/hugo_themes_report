@@ -101,10 +101,11 @@ def get_hugo_themes_list():
     if response.status_code == 200:
         lower_case_themes_list = []
         for x in response.text.splitlines():
-            if x[0:10] == "gitlab.com" or x[0:10] == "github.com":
-                if x.lower() not in lower_case_themes_list:
-                    THEMESLIST.append(x)
-                    lower_case_themes_list.append(x.lower())
+            if "gcushen" not in x:
+                if x[0:10] == "gitlab.com" or x[0:10] == "github.com":
+                    if x.lower() not in lower_case_themes_list:
+                        THEMESLIST.append(x)
+                        lower_case_themes_list.append(x.lower())
 
     print(response.status_code, get_hugo_themes_list.__name__)
 
