@@ -101,11 +101,17 @@ def get_hugo_themes_list():
     if response.status_code == 200:
         lower_case_themes_list = []
         for x in response.text.splitlines():
-            if "gcushen" not in x:
-                if x[0:10] == "gitlab.com" or x[0:10] == "github.com":
-                    if x.lower() not in lower_case_themes_list:
-                        THEMESLIST.append(x)
-                        lower_case_themes_list.append(x.lower())
+            if "wowchemy-hugo-themes" not in x:
+                """
+                alexa-portfolio, hugo-theme-ladder malformed themes.toml
+                """
+                if "alexa-portfolio" not in x and "hugo-theme-ladder" not in x:
+                    if x[0:10] == "gitlab.com" or x[0:10] == "github.com":
+                        if x.lower() not in lower_case_themes_list:
+                            if x[-1] == " " and "termishTheme" in x:
+                                x = x[0:-1]
+                            THEMESLIST.append(x)
+                            lower_case_themes_list.append(x.lower())
 
     print(response.status_code, get_hugo_themes_list.__name__)
 
@@ -226,6 +232,8 @@ def get_corrected_theme_name(x):
         return x.rstrip("/v2")
     elif "docuapi" in x:
         return x.rstrip("/v2")
+    elif "hugo-theme-zen" in x:
+        return x.rstrip("/v2")
     elif "osprey-delight" in x:
         return x.rstrip("/v5")
     elif "bilberry-hugo-theme" in x:
@@ -273,6 +281,7 @@ def get_commit_info_for_hugo_themes():
                 response.status_code,
                 get_commit_info_for_hugo_themes.__name__,
                 hugo_theme,
+                api_call_url,
             )
         print(response.status_code, get_commit_info_for_hugo_themes.__name__)
 
@@ -344,7 +353,11 @@ def get_repo_info_for_hugo_themes():
             quit()
         elif response.status_code == 404:
             print(
-                response.status_code, get_repo_info_for_hugo_themes.__name__, hugo_theme
+                response.status_code,
+                get_repo_info_for_hugo_themes.__name__,
+                hugo_theme,
+                api_call_url,
+                headers,
             )
         print(response.status_code, get_repo_info_for_hugo_themes.__name__)
 
