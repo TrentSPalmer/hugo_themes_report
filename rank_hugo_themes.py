@@ -238,6 +238,8 @@ def get_corrected_theme_name(x):
         return x.rstrip("/v5")
     elif "bilberry-hugo-theme" in x:
         return x.rstrip("/v3")
+    elif "hugo-theme-stack" in x:
+        return x.rstrip("/v3")
     else:
         return x
 
