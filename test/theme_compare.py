@@ -34,7 +34,10 @@ def compare_theme(x, y, sort_key):
         return compare_jk(x['date'], y['date'])
 
     elif sort_key == 'sortByLicense':
-        return compare_jk(y['license'].lower(), x['license'].lower())
+        return compare_jk(
+            y['license'].lower().replace("+", ".1"),
+            x['license'].lower().replace("+", ".1")
+        )
 
     else:
         return 0
