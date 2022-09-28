@@ -103,15 +103,17 @@ def get_hugo_themes_list():
         for x in response.text.splitlines():
             if "wowchemy-hugo-themes" not in x:
                 """
+                inventory-hugo-theme,
                 alexa-portfolio, hugo-theme-ladder malformed themes.toml
                 """
                 if "alexa-portfolio" not in x and "hugo-theme-ladder" not in x:
-                    if x[0:10] == "gitlab.com" or x[0:10] == "github.com":
-                        if x.lower() not in lower_case_themes_list:
-                            if x[-1] == " " and "termishTheme" in x:
-                                x = x[0:-1]
-                            THEMESLIST.append(x)
-                            lower_case_themes_list.append(x.lower())
+                    if "inventory-hugo-theme" not in x:
+                        if x[0:10] == "gitlab.com" or x[0:10] == "github.com":
+                            if x.lower() not in lower_case_themes_list:
+                                if x[-1] == " " and "termishTheme" in x:
+                                    x = x[0:-1]
+                                THEMESLIST.append(x)
+                                lower_case_themes_list.append(x.lower())
 
     print(response.status_code, get_hugo_themes_list.__name__)
 
