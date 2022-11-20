@@ -583,8 +583,10 @@ def parse_themes_toml_for_each_hugo_themes():
             else:
                 if theme.theme_license is not None:
                     theme.theme_license = None
-            if "min_version" in theme_toml:
-                corrected_mv = get_corrected_min_ver(theme_toml["min_version"])
+            if theme_toml_has_min_ver(theme_toml):
+                corrected_mv = get_corrected_min_ver(
+                    get_min_ver_from_theme_toml(theme_toml)
+                )
                 if theme.min_ver != corrected_mv:
                     theme.min_ver = corrected_mv
             else:
@@ -620,6 +622,29 @@ def parse_themes_toml_for_each_hugo_themes():
             if theme.cname is not None:
                 theme.cname = None
         session.commit()
+
+
+def get_min_ver_from_theme_toml(theme_toml):
+    if "min_version" in theme_toml:
+        return theme_toml["min_version"]
+    if "module" in theme_toml:
+        if "hugoVersion" in theme_toml["module"]:
+            if "min" in theme_toml["module"]["hugoVersion"]:
+                return theme_toml["module"]["hugoVersion"]["min"]
+            if "min_version" in theme_toml["module"]["hugoVersion"]:
+                return theme_toml["module"]["hugoVersion"]["min_version"]
+
+
+def theme_toml_has_min_ver(theme_toml):
+    if "min_version" in theme_toml:
+        return True
+    if "module" in theme_toml:
+        if "hugoVersion" in theme_toml["module"]:
+            if "min" in theme_toml["module"]["hugoVersion"]:
+                return True
+            if "min_version" in theme_toml["module"]["hugoVersion"]:
+                return True
+    return False
 
 
 def get_corrected_min_ver(x):
