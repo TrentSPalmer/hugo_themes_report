@@ -583,6 +583,8 @@ def parse_themes_toml_for_each_hugo_themes():
             else:
                 if theme.theme_license is not None:
                     theme.theme_license = None
+                if "name" in theme_toml and theme_toml["name"] == "Henry Hugo Theme":
+                    theme.theme_license = "MIT"
             if theme_toml_has_min_ver(theme_toml):
                 corrected_mv = get_corrected_min_ver(
                     get_min_ver_from_theme_toml(theme_toml)
