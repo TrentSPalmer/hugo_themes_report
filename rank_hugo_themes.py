@@ -9,6 +9,7 @@ from sys import argv as sys_argv
 from time import strptime
 
 import toml
+import yaml
 from jinja2 import Environment, FileSystemLoader
 from requests import get
 from sqlalchemy import TEXT, VARCHAR, Column, Integer, create_engine
@@ -69,6 +70,7 @@ class Hugothemes(Base):
 OLDTHEMESLISTREPO = "gohugoio/hugoThemes"
 THEMESLISTREPO = "gohugoio/hugoThemesSiteBuilder"
 THEMESLIST = []
+THEMESYAMLTHEMES = ("AminZibayi/Corporio",)
 
 
 def get_themes_name_list():
@@ -394,17 +396,23 @@ def get_repo_info_for_hugo_themes_from_gitlab():
         print(response.status_code, get_repo_info_for_hugo_themes_from_gitlab.__name__)
 
 
+def get_theme_toml_file_name(theme_name):
+    if theme_name in THEMESYAMLTHEMES:
+        return "theme.yaml"
+    else:
+        return "theme.toml"
+
+
 def get_theme_dot_toml_for_each_hugo_themes():
     session = sessionmaker(bind=engine)()
     theme_names_from_github = get_github_themes_name_list()
     for hugo_theme in theme_names_from_github:
         theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
-        theme_toml = "theme.toml"
         theme_name = get_corrected_theme_name(theme.name)
         if theme.name == "gcushen/hugo-academic":
             theme_name = "wowchemy/starter-hugo-academic"
         api_call_url = "https://api.github.com/repos/"
-        api_call_url += f"{theme_name}/contents/{theme_toml}"
+        api_call_url += f"{theme_name}/contents/{get_theme_toml_file_name(theme_name)}"
 
         if theme.themes_toml_ETag is not None:
             headers["If-None-Match"] = theme.themes_toml_ETag
@@ -412,27 +420,30 @@ def get_theme_dot_toml_for_each_hugo_themes():
             if "If-None-Match" in headers:
                 del headers["If-None-Match"]
 
-        if len(headers) == 0:
-            response = get(api_call_url)
-        else:
-            response = get(api_call_url, headers=headers)
-        if response.status_code == 200:
-            theme.themes_toml_ETag = response.headers["ETag"].lstrip("W/")
-            result = response.json()
-            theme.themes_toml_content = result["content"]
-            session.commit()
-        elif response.status_code == 403:
+            if len(headers) == 0:
+                response = get(api_call_url)
+            else:
+                response = get(api_call_url, headers=headers)
+            if response.status_code == 200:
+                theme.themes_toml_ETag = response.headers["ETag"].lstrip("W/")
+                result = response.json()
+                theme.themes_toml_content = result["content"]
+                session.commit()
+            elif response.status_code == 403:
+                print(
+                    response.status_code,
+                    get_theme_dot_toml_for_each_hugo_themes.__name__,
+                )
+                quit()
+            elif response.status_code == 404:
+                print(
+                    response.status_code,
+                    get_theme_dot_toml_for_each_hugo_themes.__name__,
+                    hugo_theme,
+                )
             print(
                 response.status_code, get_theme_dot_toml_for_each_hugo_themes.__name__
             )
-            quit()
-        elif response.status_code == 404:
-            print(
-                response.status_code,
-                get_theme_dot_toml_for_each_hugo_themes.__name__,
-                hugo_theme,
-            )
-        print(response.status_code, get_theme_dot_toml_for_each_hugo_themes.__name__)
 
 
 def get_theme_dot_toml_for_each_hugo_themes_from_gitlab():
@@ -527,7 +538,12 @@ def parse_themes_toml_for_each_hugo_themes():
             # put quotes around any unquoted double-dotted version numbers
             # (and add a newline afterwards)
             # because python toml libraries will error out on those
-            theme_toml = toml.loads(match.sub(r'"\1"\n', content))
+            theme_name = get_corrected_theme_name(theme.name)
+            print(theme_name)
+            if theme_name in THEMESYAMLTHEMES:
+                theme_toml = yaml.full_load(content)
+            else:
+                theme_toml = toml.loads(match.sub(r'"\1"\n', content))
             if "tags" in theme_toml:
                 if len(theme_toml["tags"]) > 0:
                     corrected_tags = get_corrected_tags(theme_toml["tags"])
