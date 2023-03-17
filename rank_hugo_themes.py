@@ -539,7 +539,6 @@ def parse_themes_toml_for_each_hugo_themes():
             # (and add a newline afterwards)
             # because python toml libraries will error out on those
             theme_name = get_corrected_theme_name(theme.name)
-            print(theme_name)
             if theme_name in THEMESYAMLTHEMES:
                 theme_toml = yaml.full_load(content)
             else:
@@ -622,6 +621,8 @@ def parse_themes_toml_for_each_hugo_themes():
             else:
                 if theme.cname is not None:
                     theme.cname = None
+            if theme_name == "apvarun/digital-garden-hugo-theme":
+                theme.cname = "Digital Garden Hugo"
         else:
             if theme.tags_list is not None:
                 theme.tags_list = None
