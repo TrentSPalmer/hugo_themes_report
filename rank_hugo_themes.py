@@ -103,12 +103,12 @@ def get_hugo_themes_list():
     if response.status_code == 200:
         lower_case_themes_list = []
         for x in response.text.splitlines():
-            if "wowchemy-hugo-themes" not in x:
+            if "wowchemy-hugo-themes" not in x and "hugo-theme-ladder" not in x:
                 """
                 inventory-hugo-theme,
-                alexa-portfolio, hugo-theme-ladder malformed themes.toml
+                alexa-portfolio, hugo-theme-ladder, hermit-V2 malformed themes.toml
                 """
-                if "alexa-portfolio" not in x and "hugo-theme-ladder" not in x:
+                if "alexa-portfolio" not in x and "hermit-V2" not in x:
                     # if "inventory-hugo-theme" not in x:
                     if x[0:10] == "gitlab.com" or x[0:10] == "github.com":
                         if x.lower() not in lower_case_themes_list:
@@ -196,6 +196,8 @@ def get_corrected_url(x):
         return x.rstrip("/v2")
     elif "bilberry-hugo-theme" in x:
         return x.rstrip("/v3")
+    elif "hugo-liftoff" in x:
+        return x.rstrip("/v3")
     else:
         return x
 
@@ -243,6 +245,8 @@ def get_corrected_theme_name(x):
     elif "bilberry-hugo-theme" in x:
         return x.rstrip("/v3")
     elif "hugo-theme-stack" in x:
+        return x.rstrip("/v3")
+    elif "hugo-liftoff" in x:
         return x.rstrip("/v3")
     else:
         return x
@@ -532,6 +536,7 @@ def parse_themes_toml_for_each_hugo_themes():
     themes = [theme[0] for theme in session.query(Hugothemes.name).all()]
     match = re.compile(r"\s(\d+\.\d+\.\d+)\s")
     for hugo_theme in themes:
+        # print(hugo_theme)
         theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
         if theme.themes_toml_content is not None:
             content = b64decode(theme.themes_toml_content).decode("utf-8")
