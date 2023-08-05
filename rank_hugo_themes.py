@@ -192,6 +192,8 @@ def parse_gitlab_hugo_themes_list():
 def get_corrected_url(x):
     if "neofeed-theme" in x:
         return x.rstrip("/v2")
+    elif "salinger-theme" in x:
+        return x.rstrip("/v2")
     elif "docuapi" in x:
         return x.rstrip("/v2")
     elif "bilberry-hugo-theme" in x:
@@ -239,6 +241,8 @@ def get_corrected_theme_name(x):
     elif "docuapi" in x:
         return x.rstrip("/v2")
     elif "hugo-theme-zen" in x:
+        return x.rstrip("/v2")
+    elif "salinger-theme" in x:
         return x.rstrip("/v2")
     elif "osprey-delight" in x:
         return x.rstrip("/v5")
