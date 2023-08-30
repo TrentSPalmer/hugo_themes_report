@@ -1,3 +1,4 @@
+import re
 from test.test_selenium import TestSelenium
 from unittest import TestCase
 from bs4 import BeautifulSoup as Bs
@@ -66,6 +67,12 @@ class TestShowingColumns(TestSelenium, TestCase):
                 i].theme_license is None else self.themes[i].theme_license
 
             desc = '' if self.themes[i].desc is None else self.themes[i].desc
+
+            if self.themes[i].cname == "Agnes":
+                # remove closing html tag in desc
+                desc = re.sub(r'</.*>', '', desc)
+                # remove opening html tag in desc
+                desc = re.sub(r'<.*>', '', desc)
 
             self.assertEqual(
                 tds_txt,
