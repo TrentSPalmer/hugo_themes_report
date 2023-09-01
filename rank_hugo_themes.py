@@ -190,18 +190,7 @@ def parse_gitlab_hugo_themes_list():
 
 
 def get_corrected_url(x):
-    if "neofeed-theme" in x:
-        return x.rstrip("/v2")
-    elif "salinger-theme" in x:
-        return x.rstrip("/v2")
-    elif "docuapi" in x:
-        return x.rstrip("/v2")
-    elif "bilberry-hugo-theme" in x:
-        return x.rstrip("/v3")
-    elif "hugo-liftoff" in x:
-        return x.rstrip("/v3")
-    else:
-        return x
+    return get_vnum_stripped_string(x)
 
 
 def parse_hugo_themes_list():
@@ -236,22 +225,12 @@ def get_gitlab_project_ids():
 
 
 def get_corrected_theme_name(x):
-    if "neofeed-theme" in x:
-        return x.rstrip("/v2")
-    elif "docuapi" in x:
-        return x.rstrip("/v2")
-    elif "hugo-theme-zen" in x:
-        return x.rstrip("/v2")
-    elif "salinger-theme" in x:
-        return x.rstrip("/v2")
-    elif "osprey-delight" in x:
-        return x.rstrip("/v5")
-    elif "bilberry-hugo-theme" in x:
-        return x.rstrip("/v3")
-    elif "hugo-theme-stack" in x:
-        return x.rstrip("/v3")
-    elif "hugo-liftoff" in x:
-        return x.rstrip("/v3")
+    return get_vnum_stripped_string(x)
+
+
+def get_vnum_stripped_string(x):
+    if x[-3:] in ("/v2", "/v3", "/v4", "/v5"):
+        return x[0:-3]
     else:
         return x
 
