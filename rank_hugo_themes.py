@@ -190,6 +190,8 @@ def parse_gitlab_hugo_themes_list():
 
 
 def get_corrected_url(x):
+    if "blox-tailwind" in x:
+        return "github.com/HugoBlox/hugo-blox-builder/tree/main/modules/blox-tailwind"
     return get_vnum_stripped_string(x)
 
 
@@ -242,7 +244,10 @@ def get_commit_info_for_hugo_themes():
         theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
         theme_name = get_corrected_theme_name(theme.name)
         api_call_url = "https://api.github.com/repos/"
-        api_call_url += f"{theme_name}/commits/{theme.default_branch}"
+        if "blox-tailwind" in theme_name:
+            api_call_url += "HugoBlox/hugo-blox-builder/commits/main"
+        else:
+            api_call_url += f"{theme_name}/commits/{theme.default_branch}"
 
         if theme.ETag is not None:
             headers["If-None-Match"] = theme.ETag
@@ -323,6 +328,8 @@ def get_repo_info_for_hugo_themes():
     for hugo_theme in theme_names_from_github:
         theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
         theme_name = get_corrected_theme_name(theme.name)
+        if "blox-tailwind" in theme_name:
+            theme_name = "HugoBlox/hugo-blox-builder"
         api_call_url = "https://api.github.com/repos/" + theme_name
 
         if theme.repo_ETag is not None:
@@ -399,7 +406,14 @@ def get_theme_dot_toml_for_each_hugo_themes():
         if theme.name == "gcushen/hugo-academic":
             theme_name = "wowchemy/starter-hugo-academic"
         api_call_url = "https://api.github.com/repos/"
-        api_call_url += f"{theme_name}/contents/{get_theme_toml_file_name(theme_name)}"
+        if "blox-tailwind" in theme_name:
+            api_call_url += (
+                "HugoBlox/hugo-blox-builder/contents/modules/blox-tailwind/theme.toml"
+            )
+        else:
+            api_call_url += (
+                f"{theme_name}/contents/{get_theme_toml_file_name(theme_name)}"
+            )
 
         if theme.themes_toml_ETag is not None:
             headers["If-None-Match"] = theme.themes_toml_ETag
@@ -519,7 +533,6 @@ def parse_themes_toml_for_each_hugo_themes():
     themes = [theme[0] for theme in session.query(Hugothemes.name).all()]
     match = re.compile(r"\s(\d+\.\d+\.\d+)\s")
     for hugo_theme in themes:
-        # print(hugo_theme)
         theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
         if theme.themes_toml_content is not None:
             content = b64decode(theme.themes_toml_content).decode("utf-8")
