@@ -213,7 +213,9 @@ def parse_hugo_themes_list():
 def get_gitlab_project_ids():
     session = sessionmaker(bind=engine)()
     themes = (theme[0] for theme in session.query(Hugothemes_from_gitlab.name).all())
-    match = re.compile(r"(Project ID: )(\d{5,})")
+    # match = re.compile(r"(Project ID: )(\d{5,})")
+    # need new regex gitlab moved my cheese
+    match = re.compile(r"(Project\/)(\d{8})")
     for theme in themes:
         gitlab_theme = session.query(Hugothemes_from_gitlab).filter_by(name=theme).one()
         if gitlab_theme.gitlab_id is None:
@@ -685,18 +687,20 @@ def generate_report():
             "url": f"https://{theme.url}",
             "short_name": theme.name.split("/")[1],
             "num_stars": theme.stargazers_count,
-            "tags": literal_eval(theme.tags_list)
-            if theme.tags_list is not None
-            else [],
-            "features": literal_eval(theme.features_list)
-            if theme.features_list is not None
-            else [],
+            "tags": (
+                literal_eval(theme.tags_list) if theme.tags_list is not None else []
+            ),
+            "features": (
+                literal_eval(theme.features_list)
+                if theme.features_list is not None
+                else []
+            ),
             "license": theme.theme_license if theme.theme_license is not None else "",
             "min_ver": theme.min_ver if theme.min_ver is not None else "",
             "desc": theme.desc if theme.desc is not None else "",
-            "cname": theme.cname
-            if theme.cname is not None
-            else theme.name.split("/")[1],
+            "cname": (
+                theme.cname if theme.cname is not None else theme.name.split("/")[1]
+            ),
         }
         for theme in session.query(Hugothemes).all()
     ]
