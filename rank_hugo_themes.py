@@ -108,14 +108,15 @@ def get_hugo_themes_list():
                 inventory-hugo-theme,
                 alexa-portfolio, hugo-theme-ladder, hermit-V2 malformed themes.toml
                 """
-                if "alexa-portfolio" not in x and "hermit-V2" not in x:
-                    # if "inventory-hugo-theme" not in x:
-                    if x[0:10] == "gitlab.com" or x[0:10] == "github.com":
-                        if x.lower() not in lower_case_themes_list:
-                            if x[-1] == " " and "termishTheme" in x:
-                                x = x[0:-1]
-                            THEMESLIST.append(x)
-                            lower_case_themes_list.append(x.lower())
+                if "HugoBlox" not in x:
+                    if "alexa-portfolio" not in x and "hermit-V2" not in x:
+                        # if "inventory-hugo-theme" not in x:
+                        if x[0:10] == "gitlab.com" or x[0:10] == "github.com":
+                            if x.lower() not in lower_case_themes_list:
+                                if x[-1] == " " and "termishTheme" in x:
+                                    x = x[0:-1]
+                                THEMESLIST.append(x)
+                                lower_case_themes_list.append(x.lower())
 
     print(response.status_code, get_hugo_themes_list.__name__)
 
