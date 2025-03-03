@@ -539,6 +539,12 @@ def parse_themes_toml_for_each_hugo_themes():
         theme = session.query(Hugothemes).filter_by(name=hugo_theme).one()
         if theme.themes_toml_content is not None:
             content = b64decode(theme.themes_toml_content).decode("utf-8")
+            if theme.name == "Blackstareye/stargazer-layout":
+                my_content = ""
+                for line in content.splitlines():
+                    if "hugoVersion" not in line:
+                        my_content += line + "\n"
+                content = my_content
             # put quotes around any unquoted double-dotted version numbers
             # (and add a newline afterwards)
             # because python toml libraries will error out on those
