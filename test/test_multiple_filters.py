@@ -1,10 +1,12 @@
-from test.test_selenium import TestSelenium
-from unittest import TestCase
+from ast import literal_eval
 from secrets import choice
 from test.database import get_themes_orderedby_cname
-from ast import literal_eval
-from bs4 import BeautifulSoup
 from test.test_filterby_tags import MATCH
+from test.test_selenium import TestSelenium
+from unittest import TestCase
+
+from bs4 import BeautifulSoup
+from selenium.webdriver.common.by import By
 
 
 class TestMultipleFilters(TestSelenium, TestCase):
@@ -20,7 +22,7 @@ class TestMultipleFilters(TestSelenium, TestCase):
             'sortByName',
             'button-for-filter-by-features',
         ]:
-            self.driver.find_element_by_id(x).click()
+            self.driver.find_element(By.ID, x).click()
         self.current_filter = 'features'
         self.selected_tags = []
         self.selected_features = []
@@ -32,7 +34,7 @@ class TestMultipleFilters(TestSelenium, TestCase):
         self.check_table_contents()
 
     def check_table_contents(self):
-        results_table_div = self.driver.find_element_by_id('results')
+        results_table_div = self.driver.find_element(By.ID, 'results')
         rows = BeautifulSoup(results_table_div.get_attribute(
             'innerHTML'), features='lxml').find('table').findAll('tr')
 
@@ -95,16 +97,16 @@ class TestMultipleFilters(TestSelenium, TestCase):
                 tc_from_button, tc_from_selfdotthemes, msg=feature_from_button)
 
     def update_available_licenses(self):
-        licenseSelectionRow = self.driver.find_element_by_id(
-            'licenseSelectionRow')
+        licenseSelectionRow = self.driver.find_element(
+            By.ID, 'licenseSelectionRow')
         self.license_buttons = BeautifulSoup(
             licenseSelectionRow.get_attribute('innerHTML'), features='lxml'
         ).findAll('button')
 
     def set_unchecked_features(self):
-        featureSelectionRow = self.driver.find_element_by_id(
-            'featureSelectionRow')
-        inputs = featureSelectionRow.find_elements_by_tag_name('input')
+        featureSelectionRow = self.driver.find_element(
+            By.ID, 'featureSelectionRow')
+        inputs = featureSelectionRow.find_elements(By.TAG_NAME, 'input')
         self.unchecked_features = [
             x.get_attribute('id')[:-24] for x in inputs if not x.is_selected()
         ]
@@ -113,9 +115,9 @@ class TestMultipleFilters(TestSelenium, TestCase):
         ).findAll('button')
 
     def set_unchecked_tags(self):
-        tagSelectionRow = self.driver.find_element_by_id(
-            'tagSelectionRow')
-        inputs = tagSelectionRow.find_elements_by_tag_name('input')
+        tagSelectionRow = self.driver.find_element(
+            By.ID, 'tagSelectionRow')
+        inputs = tagSelectionRow.find_elements(By.TAG_NAME, 'input')
         self.unchecked_tags = [
             x.get_attribute('id')[:-20] for x in inputs if not x.is_selected()
         ]
@@ -148,29 +150,29 @@ class TestMultipleFilters(TestSelenium, TestCase):
     def check_random_feature(self):
         if len(self.unchecked_features) > 0:
             random_feature = choice(self.unchecked_features[:2])
-            self.driver.find_element_by_id(
-                f"{random_feature}-feature-selection-input").click()
+            self.driver.find_element(
+                By.ID, f"{random_feature}-feature-selection-input").click()
             self.selected_features.append(random_feature)
             self.update_lists()
 
     def check_random_tag(self):
         if len(self.unchecked_tags) > 0:
             random_tag = choice(self.unchecked_tags[:2])
-            self.driver.find_element_by_id(
-                f"{random_tag}-tag-selection-input").click()
+            self.driver.find_element(
+                By.ID, f"{random_tag}-tag-selection-input").click()
             self.selected_tags.append(random_tag)
             self.update_lists()
 
     def multiple_filter_test(self):
         if self.current_filter == 'tags':
             self.current_filter = 'features'
-            self.driver.find_element_by_id(
-                'button-for-filter-by-features').click()
+            self.driver.find_element(
+                By.ID, 'button-for-filter-by-features').click()
             self.add_feature_filter()
         if self.current_filter == 'features':
             self.current_filter = 'tags'
-            self.driver.find_element_by_id(
-                'button-for-filter-by-tags').click()
+            self.driver.find_element(
+                By.ID, 'button-for-filter-by-tags').click()
             self.add_tag_filter()
 
     def has_tags_and_features(self, tl, fl):

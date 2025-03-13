@@ -1,12 +1,14 @@
 from test.test_selenium import TestSelenium
 from unittest import TestCase
 
+from selenium.webdriver.common.by import By
+
 
 class TestScroll(TestSelenium, TestCase):
     def setUp(self):
         super(TestScroll, self).setUp()
-        self.plus_button = self.driver.find_element_by_id('plus-button')
-        self.minus_button = self.driver.find_element_by_id('minus-button')
+        self.plus_button = self.driver.find_element(By.ID, 'plus-button')
+        self.minus_button = self.driver.find_element(By.ID, 'minus-button')
 
     def test_get_scroll_position(self):
         self.assertEqual(

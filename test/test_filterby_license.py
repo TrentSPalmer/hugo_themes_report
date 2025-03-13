@@ -1,7 +1,9 @@
+from test.database import get_themes_orderedby_cname
 from test.test_selenium import TestSelenium
 from unittest import TestCase
-from test.database import get_themes_orderedby_cname
+
 from bs4 import BeautifulSoup
+from selenium.webdriver.common.by import By
 
 
 class TestFilterByLicense(TestSelenium, TestCase):
@@ -15,21 +17,21 @@ class TestFilterByLicense(TestSelenium, TestCase):
                 'sortByName',
                 'button-for-filter-by-license',
         ]:
-            self.driver.find_element_by_id(x).click()
+            self.driver.find_element(By.ID, x).click()
         self.themes = get_themes_orderedby_cname()
 
     def test_filter_by_license(self):
         filterby_lic_inputs = [x.get_attribute('id')[:-24]
-                               for x in self.driver.find_element_by_id(
-            'licenseSelectionRow').find_elements_by_tag_name('input')]
+                               for x in self.driver.find_element(
+            By.ID, 'licenseSelectionRow').find_elements(By.TAG_NAME, 'input')]
 
         for license in filterby_lic_inputs:
-            self.driver.find_element_by_id(
-                f"{license}-license-selection-input").click()
+            self.driver.find_element(
+                By.ID, f"{license}-license-selection-input").click()
             themes = list(
                 filter(lambda x: x.theme_license == license, self.themes)
             )
-            results_table_div = self.driver.find_element_by_id('results')
+            results_table_div = self.driver.find_element(By.ID, 'results')
             rows = BeautifulSoup(results_table_div.get_attribute(
                 'innerHTML'), features='lxml').find('table').findAll('tr')
 
@@ -47,5 +49,5 @@ class TestFilterByLicense(TestSelenium, TestCase):
                         themes[i].theme_license,
                     ],
                 )
-            self.driver.find_element_by_id(
-                f"{license}-license-selection-input").click()
+            self.driver.find_element(
+                By.ID, f"{license}-license-selection-input").click()

@@ -1,12 +1,13 @@
 from test.test_selenium import TestSelenium
 from unittest import TestCase
+from selenium.webdriver.common.by import By
 
 
 class TestDescription(TestSelenium, TestCase):
     def setUp(self):
         super(TestDescription, self).setUp()
-        self.plus_button = self.driver.find_element_by_id('plus-button')
-        self.desc = self.driver.find_element_by_id('description')
+        self.plus_button = self.driver.find_element(By.ID, 'plus-button')
+        self.desc = self.driver.find_element(By.ID, 'description')
         self.tp_ShowingColumns = "ShowingColumns: "
         self.tp_SortedBy = "; SortedBy: "
         self.tp_Minver = "; FilteredBy: MinHugoVersion="

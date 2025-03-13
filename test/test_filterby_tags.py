@@ -4,6 +4,7 @@ from test.database import get_themes_orderedby_cname
 from ast import literal_eval
 from bs4 import BeautifulSoup
 import re
+from selenium.webdriver.common.by import By
 MATCH = re.compile(r'^(.*)(\s\(\d*\))$')
 
 
@@ -18,22 +19,22 @@ class TestFilterByTags(TestSelenium, TestCase):
                 'sortByName',
                 'button-for-filter-by-tags',
         ]:
-            self.driver.find_element_by_id(x).click()
+            self.driver.find_element(By.ID, x).click()
         self.themes = get_themes_orderedby_cname()
 
     def test_filter_by_tags(self):
         filterby_tags_inputs = self.get_filter_by_tags_inputs()
 
         for tag in filterby_tags_inputs:
-            self.driver.find_element_by_id(
-                f"{tag}-tag-selection-input").click()
+            self.driver.find_element(
+                By.ID, f"{tag}-tag-selection-input").click()
 
             themes = [x for x in self.themes if
                       x.tags_list is not None and tag
                       in literal_eval(x.tags_list)]
             self.update_tags_available(themes)
 
-            tagSelectionRow = self.driver.find_element_by_id('tagSelectionRow')
+            tagSelectionRow = self.driver.find_element(By.ID, 'tagSelectionRow')
             buttons = BeautifulSoup(
                 tagSelectionRow.get_attribute(
                     'innerHTML'), features='lxml').findAll('button')
@@ -50,7 +51,7 @@ class TestFilterByTags(TestSelenium, TestCase):
                     self.tags_available[button_tag]['num_themes']
                 )
 
-            results_table_div = self.driver.find_element_by_id('results')
+            results_table_div = self.driver.find_element(By.ID, 'results')
             rows = BeautifulSoup(results_table_div.get_attribute(
                 'innerHTML'), features='lxml').find('table').findAll('tr')
 
@@ -75,13 +76,13 @@ class TestFilterByTags(TestSelenium, TestCase):
                     ],
                 )
 
-            self.driver.find_element_by_id(
-                f"{tag}-tag-selection-input").click()
+            self.driver.find_element(
+                By.ID, f"{tag}-tag-selection-input").click()
 
     def get_filter_by_tags_inputs(self):
-        div = self.driver.find_element_by_id('tagSelectionRow')
+        div = self.driver.find_element(By.ID, 'tagSelectionRow')
         return [x.get_attribute('id')[:-20]
-                for x in div.find_elements_by_tag_name('input')]
+                for x in div.find_elements(By.TAG_NAME, 'input')]
 
     def update_tags_available(self, themes):
         self.tags_available = {}

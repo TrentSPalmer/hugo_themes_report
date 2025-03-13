@@ -1,14 +1,16 @@
 from test.test_selenium import TestSelenium
 from unittest import TestCase
 
+from selenium.webdriver.common.by import By
+
 
 class TestMinusButton(TestSelenium, TestCase):
     def setUp(self):
         super(TestMinusButton, self).setUp()
-        self.plus_button = self.driver.find_element_by_id('plus-button')
-        self.minus_button = self.driver.find_element_by_id('minus-button')
-        self.selection_options_menu = self.driver.find_element_by_id(
-            'selection-options-menu')
+        self.plus_button = self.driver.find_element(By.ID, 'plus-button')
+        self.minus_button = self.driver.find_element(By.ID, 'minus-button')
+        self.selection_options_menu = self.driver.find_element(
+            By.ID, 'selection-options-menu')
 
     def test_minus_button_props(self):
         self.assertEqual(

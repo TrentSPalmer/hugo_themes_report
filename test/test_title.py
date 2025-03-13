@@ -1,11 +1,13 @@
 from test.test_selenium import TestSelenium
 from unittest import TestCase
 
+from selenium.webdriver.common.by import By
+
 
 class TestTitle(TestSelenium, TestCase):
     def setUp(self):
         super(TestTitle, self).setUp()
-        self.x = self.driver.find_elements_by_tag_name('h1')
+        self.x = self.driver.find_elements(By.TAG_NAME, 'h1')
 
     def test_title(self):
         self.assertEqual(len(self.x), 1)
@@ -21,7 +23,7 @@ class TestTitle(TestSelenium, TestCase):
             self.x[0].value_of_css_property('font-family'), 'sans-serif')
 
     def test_title_anchor(self):
-        x_anchors = self.x[0].find_elements_by_tag_name('a')
+        x_anchors = self.x[0].find_elements(By.TAG_NAME, 'a')
         self.assertEqual(len(x_anchors), 1)
         self.assertEqual(
             x_anchors[0].get_attribute('href'),

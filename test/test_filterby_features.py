@@ -1,9 +1,11 @@
+from ast import literal_eval
+from test.database import get_themes_orderedby_cname
+from test.test_filterby_tags import MATCH
 from test.test_selenium import TestSelenium
 from unittest import TestCase
-from test.database import get_themes_orderedby_cname
-from ast import literal_eval
+
 from bs4 import BeautifulSoup
-from test.test_filterby_tags import MATCH
+from selenium.webdriver.common.by import By
 
 
 class TestFilterByFeatures(TestSelenium, TestCase):
@@ -17,22 +19,22 @@ class TestFilterByFeatures(TestSelenium, TestCase):
             'sortByName',
             'button-for-filter-by-features',
         ]:
-            self.driver.find_element_by_id(x).click()
+            self.driver.find_element(By.ID, x).click()
 
     def test_filterby_features(self):
         filterby_features_inputs = self.get_filter_by_features_inputs()
 
         for feature in filterby_features_inputs:
-            self.driver.find_element_by_id(
-                f"{feature}-feature-selection-input").click()
+            self.driver.find_element(
+                By.ID, f"{feature}-feature-selection-input").click()
 
             self.themes = [x for x in get_themes_orderedby_cname() if
                            x.features_list is not None and feature
                            in literal_eval(x.features_list)]
             self.update_features_available()
 
-            featureSelectionRow = self.driver.find_element_by_id(
-                'featureSelectionRow')
+            featureSelectionRow = self.driver.find_element(
+                By.ID, 'featureSelectionRow')
             buttons = BeautifulSoup(
                 featureSelectionRow.get_attribute(
                     'innerHTML'), features='lxml').findAll('button')
@@ -47,7 +49,7 @@ class TestFilterByFeatures(TestSelenium, TestCase):
                     self.features_available[button_feature]['num_themes']
                 )
 
-            results_table_div = self.driver.find_element_by_id('results')
+            results_table_div = self.driver.find_element(By.ID, 'results')
             rows = BeautifulSoup(results_table_div.get_attribute(
                 'innerHTML'), features='lxml').find('table').findAll('tr')
 
@@ -73,13 +75,13 @@ class TestFilterByFeatures(TestSelenium, TestCase):
                     ],
                 )
 
-            self.driver.find_element_by_id(
-                f"{feature}-feature-selection-input").click()
+            self.driver.find_element(
+                By.ID, f"{feature}-feature-selection-input").click()
 
     def get_filter_by_features_inputs(self):
-        div = self.driver.find_element_by_id('featureSelectionRow')
+        div = self.driver.find_element(By.ID, 'featureSelectionRow')
         return [x.get_attribute('id')[:-24]
-                for x in div.find_elements_by_tag_name('input')]
+                for x in div.find_elements(By.TAG_NAME, 'input')]
 
     def update_features_available(self):
         self.features_available = {}

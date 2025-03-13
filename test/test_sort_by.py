@@ -5,6 +5,7 @@ from itertools import permutations
 from test.theme_compare import theme_compare
 from functools import cmp_to_key
 from bs4 import BeautifulSoup
+from selenium.webdriver.common.by import By
 
 SBB = [
     'sortByDate',
@@ -26,7 +27,7 @@ class TestsSortBy(TestSelenium, TestCase):
                 'license-column-selection-input',
                 'button-for-showing-sort-option',
         ]:
-            self.driver.find_element_by_id(x).click()
+            self.driver.find_element(By.ID, x).click()
         self.themes = get_themes_as_dicts_of_sortable_columns()
         self.tc = len(self.themes)
 
@@ -43,11 +44,11 @@ class TestsSortBy(TestSelenium, TestCase):
             reverse order of the current permutation
             '''
             for x in y[::-1]:
-                self.driver.find_element_by_id(x).click()
+                self.driver.find_element(By.ID, x).click()
 
             sort_by_inputs = [x.get_attribute(
-                'id') for x in self.driver.find_element_by_id(
-                'sortByRow').find_elements_by_tag_name('input')]
+                'id') for x in self.driver.find_element(
+                By.ID, 'sortByRow').find_elements(By.TAG_NAME, 'input')]
             '''
             and then assert that the sort_by button row is now
             in the same order left->right, as the current
@@ -61,7 +62,7 @@ class TestsSortBy(TestSelenium, TestCase):
             self.themes.sort(
                 key=cmp_to_key(lambda a, b: theme_compare(a, b, y)))
 
-            results_table_div = self.driver.find_element_by_id('results')
+            results_table_div = self.driver.find_element(By.ID, 'results')
             rows = BeautifulSoup(results_table_div.get_attribute(
                 'innerHTML'), features='lxml').find('table').findAll('tr')
 

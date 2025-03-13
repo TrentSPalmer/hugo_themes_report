@@ -1,41 +1,43 @@
 import re
+from ast import literal_eval
+from test.database import get_themes_orderedby_cname
 from test.test_selenium import TestSelenium
 from unittest import TestCase
+
 from bs4 import BeautifulSoup as Bs
-from test.database import get_themes_orderedby_cname
-from ast import literal_eval
+from selenium.webdriver.common.by import By
 
 
 class TestShowingColumns(TestSelenium, TestCase):
     def setUp(self):
         super(TestShowingColumns, self).setUp()
-        self.driver.find_element_by_id('plus-button').click()
-        self.driver.find_element_by_id(
-            'button-for-showing-sort-option').click()
-        self.driver.find_element_by_id('sortByName').click()
-        self.driver.find_element_by_id(
-            'button-for-showing-columns').click()
+        self.driver.find_element(By.ID, 'plus-button').click()
+        self.driver.find_element(
+            By.ID, 'button-for-showing-sort-option').click()
+        self.driver.find_element(By.ID, 'sortByName').click()
+        self.driver.find_element(
+            By.ID, 'button-for-showing-columns').click()
         self.themes = get_themes_orderedby_cname()
         self.tc = len(self.themes)
 
     def test_non_default_table(self):
-        self.driver.find_element_by_id(
-            'min_ver-column-selection-input').click()
-        self.driver.find_element_by_id(
-            'license-column-selection-input').click()
-        self.driver.find_element_by_id(
-            'desc-column-selection-input').click()
-        self.driver.find_element_by_id(
-            'tags-column-selection-input').click()
-        self.driver.find_element_by_id(
-            'features-column-selection-input').click()
-        self.driver.find_element_by_id(
-            'date-column-selection-input').click()
-        self.driver.find_element_by_id(
-            'num_stars-column-selection-input').click()
-        self.driver.find_element_by_id(
-            'commit-column-selection-input').click()
-        results_table_div = self.driver.find_element_by_id('results')
+        self.driver.find_element(
+            By.ID, 'min_ver-column-selection-input').click()
+        self.driver.find_element(
+            By.ID, 'license-column-selection-input').click()
+        self.driver.find_element(
+            By.ID, 'desc-column-selection-input').click()
+        self.driver.find_element(
+            By.ID, 'tags-column-selection-input').click()
+        self.driver.find_element(
+            By.ID, 'features-column-selection-input').click()
+        self.driver.find_element(
+            By.ID, 'date-column-selection-input').click()
+        self.driver.find_element(
+            By.ID, 'num_stars-column-selection-input').click()
+        self.driver.find_element(
+            By.ID, 'commit-column-selection-input').click()
+        results_table_div = self.driver.find_element(By.ID, 'results')
         rows = Bs(results_table_div.get_attribute(
             'innerHTML'), features='lxml').find('table').findAll('tr')
 
@@ -80,7 +82,7 @@ class TestShowingColumns(TestSelenium, TestCase):
             )
 
     def test_default_table(self):
-        results_table_div = self.driver.find_element_by_id('results')
+        results_table_div = self.driver.find_element(By.ID, 'results')
         rows = Bs(results_table_div.get_attribute(
             'innerHTML'), features='lxml').find('table').findAll('tr')
 

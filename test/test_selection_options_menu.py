@@ -1,6 +1,8 @@
 from test.test_selenium import TestSelenium
 from unittest import TestCase
 
+from selenium.webdriver.common.by import By
+
 DBI = [
     'button-for-showing-sort-option',
     'button-for-showing-columns',
@@ -29,25 +31,25 @@ FLEXROWS = [
 class TestSelectionOptionsMenu(TestSelenium, TestCase):
     def setUp(self):
         super(TestSelectionOptionsMenu, self).setUp()
-        self.driver.find_element_by_id('plus-button').click()
-        self.div = self.driver.find_element_by_id('selection-options-menu')
+        self.driver.find_element(By.ID, 'plus-button').click()
+        self.div = self.driver.find_element(By.ID, 'selection-options-menu')
 
     def display_is_d_test(self, y_list, d):
         for x in y_list:
             self.assertEqual(
-                self.driver.find_element_by_id(
-                    x).value_of_css_property('display'), d)
+                self.driver.find_element(
+                    By.ID, x).value_of_css_property('display'), d)
 
     def test_default_selection_options_menu_buttons_exist(self):
         self.display_is_d_test(DBI, 'block')
         ids = [x.get_attribute(
-            'id') for x in self.div.find_elements_by_tag_name('button')]
+            'id') for x in self.div.find_elements(By.TAG_NAME, 'button')]
         self.assertEqual(ids, DBI)
 
     def test_buttons(self):
         self.display_is_d_test(DBI, 'block')
         for i, x in enumerate(DBI):
-            button = self.driver.find_element_by_id(x)
+            button = self.driver.find_element(By.ID, x)
             button.click()
             self.assertEqual(button.value_of_css_property('display'), 'none')
             self.display_is_d_test([*DBI[0:i], *DBI[i + 1:]], 'block')
