@@ -394,6 +394,8 @@ def get_repo_info_for_hugo_themes_from_gitlab():
 
 
 def get_theme_toml_file_name(theme_name):
+    if theme_name == "hugolify/hugolify-theme":
+        return "theme.yml"
     if theme_name in THEMESYAMLTHEMES:
         return "theme.yaml"
     else:
@@ -550,6 +552,8 @@ def parse_themes_toml_for_each_hugo_themes():
             # because python toml libraries will error out on those
             theme_name = get_corrected_theme_name(theme.name)
             if theme_name in THEMESYAMLTHEMES:
+                theme_toml = yaml.full_load(content)
+            elif theme_name == "hugolify/hugolify-theme":
                 theme_toml = yaml.full_load(content)
             else:
                 theme_toml = toml.loads(match.sub(r'"\1"\n', content))
