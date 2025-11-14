@@ -103,9 +103,9 @@ def get_hugo_themes_list():
     if response.status_code == 200:
         lower_case_themes_list = []
         for x in response.text.splitlines():
-            if "wowchemy-hugo-themes" not in x and "hugo-theme-ladder" not in x:
+            if "wowchemy-hugo-themes" not in x:
                 """
-                digio-theme, hugo-theme-ladder, malformed themes.toml
+                digio-theme, malformed themes.toml
                 """
                 if "HugoBlox" not in x and "digio-theme" not in x:
                     if x[0:10] == "gitlab.com" or x[0:10] == "github.com":
