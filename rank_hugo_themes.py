@@ -105,12 +105,10 @@ def get_hugo_themes_list():
         for x in response.text.splitlines():
             if "wowchemy-hugo-themes" not in x and "hugo-theme-ladder" not in x:
                 """
-                inventory-hugo-theme,
-                alexa-portfolio, hugo-theme-ladder, hermit-V2 malformed themes.toml
+                digio-theme, alexa-portfolio, hugo-theme-ladder, hermit-V2 malformed themes.toml
                 """
-                if "HugoBlox" not in x:
+                if "HugoBlox" not in x and "digio-theme" not in x:
                     if "alexa-portfolio" not in x and "hermit-V2" not in x:
-                        # if "inventory-hugo-theme" not in x:
                         if x[0:10] == "gitlab.com" or x[0:10] == "github.com":
                             if x.lower() not in lower_case_themes_list:
                                 if x[-1] == " " and "termishTheme" in x:
