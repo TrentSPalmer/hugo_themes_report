@@ -634,6 +634,8 @@ def parse_themes_toml_for_each_hugo_themes():
                     theme.cname = None
             if theme_name == "apvarun/digital-garden-hugo-theme":
                 theme.cname = "Digital Garden Hugo"
+            if theme_name == "guangzhengli/hugo-theme-ladder":
+                theme.cname = "Hugo Theme Ladder"
         else:
             if theme.tags_list is not None:
                 theme.tags_list = None
