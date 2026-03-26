@@ -269,7 +269,8 @@ def get_commit_info_for_hugo_themes():
             theme.commit_date_in_seconds = timegm(
                 strptime(theme.commit_date, "%Y-%m-%dT%H:%M:%SZ")
             )
-            theme.commit_sha = result["commit"]["tree"]["sha"]
+            # theme.commit_sha = result["commit"]["tree"]["sha"]
+            theme.commit_sha = result["sha"]
             session.commit()
         elif response.status_code == 403:
             print(response.status_code, get_commit_info_for_hugo_themes.__name__)
@@ -636,6 +637,8 @@ def parse_themes_toml_for_each_hugo_themes():
                 theme.cname = "Digital Garden Hugo"
             if theme_name == "guangzhengli/hugo-theme-ladder":
                 theme.cname = "Hugo Theme Ladder"
+            if theme_name == "chipzoller/hugo-clarity":
+                theme.cname = "Clarity (hugo-clarity)"
             if "frjo/hugo-theme-zen" in theme_name:
                 theme.cname = "Hugo Theme Zen"
         else:
